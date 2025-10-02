@@ -9,6 +9,7 @@ import javax.sound.midi.MidiUnavailableException;
 
 public class UseCaseInteractor {
     private final MidiOutputPort midiOutput;
+    private final LoadHindemithChordFileUseCase loadHindemithChordFileUseCase = new LoadHindemithChordFileUseCase();
 
 
     public UseCaseInteractor(MidiOutputPort midiOutput) {
@@ -25,5 +26,9 @@ public class UseCaseInteractor {
 
     public void sendToneToDevice(Tone tone, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
         midiOutput.sendToneToDevice(tone, deviceNameSubstring);
+    }
+
+    public void loadHindemithChordFile() {
+        loadHindemithChordFileUseCase.load();
     }
 }
