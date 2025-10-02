@@ -24,27 +24,20 @@ public class Hindemith {
     private ScaleRepository scaleRepository = new ScaleRepository();
     private ChordCalculator chordCalculator = new ChordCalculator();
 
-    private List<Chord> specificChordList;
-
-    //private Map<String, Map<Integer, Map<FrameIntervalRange, List<Chord>>>> allChords = new HashMap<>(); //Skalenname, numNotes, Rahmenintervall
     private Map<String, Map< Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>>> allChords = new HashMap<>(); //SkalenName, DissonanzGrad, numNotes, Rahmenintervall
 
     public ScaleRepository getScaleRepository() {
         return scaleRepository;
     }
 
-    public List<Chord> getSpecificChordList() {
-        return specificChordList;
-    }
-
     //public Map<String, Map<Integer, Map<FrameIntervalRange, List<Chord>>>> getAllChords() { return allChords;}
 
     public Map<String, Map< Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>>> getAllChords() {return allChords;}
 
-    public void fillSpecificChordList(String scale, int dissDegree, int numNotes, FrameIntervalRange range){
 
+    public List<Chord> getSpecificChordList(String scale, int dissDegree, int numNotes, FrameIntervalRange range){
+        List<Chord> specificChordList = new ArrayList<>();
         if (allChords.containsKey(scale)) {
-            //Map<Integer, Map<FrameIntervalRange, List<Chord>>> numNotesMap = allChords.get(scale);
             Map<Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>> dissDegreeMap = allChords.get(scale);
             if (dissDegreeMap != null && dissDegreeMap.containsKey(dissDegree)) {
                 Map<Integer, Map<FrameIntervalRange, List<Chord>>> numNotesMap = dissDegreeMap.get(dissDegree);
@@ -56,9 +49,12 @@ public class Hindemith {
                 } else { System.out.println( "No such numNotesMap." + numNotes); }
             } else { System.out.println( "No such dissDegree." + dissDegree); }
         } else { System.out.println("No such Scale-Key." + scale); }
+        return specificChordList;
     }
 
-    public void printSpecificChordList(){
+
+
+    public void printSpecificChordList(List<Chord> specificChordList){
         if (specificChordList != null) {
             for (Chord chord : specificChordList) {
                 System.out.println("Chord: " + chord + " rootNote: " + chord.getRootNote());
@@ -162,7 +158,7 @@ public class Hindemith {
     }
     public void saveAllChordsToFile(int minLowerNote, int maxUpperNote) {
         Path path = Paths.get(System.getProperty("user.dir"),
-                "minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
+                "/data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
         String filePath = path.toString();
         System.out.println("save to file: " + filePath);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -176,7 +172,7 @@ public class Hindemith {
 
     public void loadAllChordsFromFile(int minLowerNote, int maxUpperNote) {
         Path path = Paths.get(System.getProperty("user.dir"),
-                "minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
+                "/data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
         String filePath = path.toString();
         System.out.println("lade " + filePath + " ..." );
         Gson gson = new Gson();
@@ -192,13 +188,6 @@ public class Hindemith {
             allChords = new HashMap<>(); // Rückgabe einer leeren Map im Fehlerfall
         }
 
-    }
-
-    public static void main(String[] args){
-        Hindemith hindemith = new Hindemith();
-        hindemith.loadAllChordsFromFile(52, 68);
-
-        // geht
     }
 
 }
