@@ -37,4 +37,8 @@ public class UseCaseInteractor {
     public void loadHindemithChordFile() {
         loadHindemithChordFileUseCase.load();
     }
+
+    public List<Chord> getSomeHindemithChords() {
+        return loadHindemithChordFileUseCase.getSomeChords();
+    }
 }

@@ -193,15 +193,20 @@ public class Hindemith {
 
     public void loadAllChordsFromFile(int minLowerNote, int maxUpperNote) {
         Path path = Paths.get(System.getProperty("user.dir"),
-                "/data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
+                "data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
         String filePath = path.toString();
         System.out.println("lade " + filePath + " ..." );
         Gson gson = new Gson();
         Type type = new TypeToken<Map<String, Map<Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>>>>(){}.getType();
 
-
         try (FileReader reader = new FileReader(filePath)) {
-            allChords = gson.fromJson(reader, type);
+            Map<String, Map<Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>>> loaded = gson.fromJson(reader, type);
+            if (loaded == null) {
+                System.out.println("[MIDI][DEBUG_LOG] JSON parsed to null, setting empty map.");
+                allChords = new HashMap<>();
+            } else {
+                allChords = loaded;
+            }
             System.out.println("Datei erfolgreich geladen.");
         } catch (IOException e) {
             System.out.println("Fehler beim Laden der Datei " + filePath + ".");
