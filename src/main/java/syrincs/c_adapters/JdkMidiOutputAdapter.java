@@ -1,5 +1,6 @@
 package syrincs.c_adapters;
 
+import syrincs.a_domain.ChordCalculator.Chord;
 import syrincs.a_domain.Tone;
 import syrincs.b_application.ports.MidiOutputPort;
 
@@ -56,6 +57,10 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
                     (deviceNameSubstring != null ? " for substring '" + deviceNameSubstring + "'" : ""));
         }
         send(tone, info, 0);
+    }
+
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+
     }
 
     // Prefer Roland piano if present, otherwise the first available MIDI OUT

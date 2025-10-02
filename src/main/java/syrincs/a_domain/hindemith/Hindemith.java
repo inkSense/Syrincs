@@ -51,6 +51,27 @@ public class Hindemith {
         } else { System.out.println("No such Scale-Key." + scale); }
         return specificChordList;
     }
+    
+    /**
+     * Liefert alle Akkorde für die angegebene Skala, Notenzahl und Rahmenintervall,
+     * unabhängig vom Dissonanzgrad. Gibt niemals null zurück.
+     */
+    public List<Chord> getChordListAnyDissDegree(String scale, int numNotes, FrameIntervalRange range){
+        List<Chord> result = new ArrayList<>();
+        Map<Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>> dissDegreeMap = allChords.get(scale);
+        if (dissDegreeMap == null) {
+            System.out.println("No such Scale-Key." + scale);
+            return result;
+        }
+        for (Map<Integer, Map<FrameIntervalRange, List<Chord>>> numNotesMap : dissDegreeMap.values()) {
+            if (numNotesMap == null) continue;
+            Map<FrameIntervalRange, List<Chord>> frameIntervalMap = numNotesMap.get(numNotes);
+            if (frameIntervalMap == null) continue;
+            List<Chord> chords = frameIntervalMap.get(range);
+            if (chords != null) result.addAll(chords);
+        }
+        return result;
+    }
 
 
 

@@ -1,11 +1,13 @@
 package syrincs.b_application;
 
+import syrincs.a_domain.ChordCalculator.Chord;
 import syrincs.a_domain.Tone;
 import syrincs.b_application.ports.MidiOutputPort;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
+import java.util.List;
 
 public class UseCaseInteractor {
     private final MidiOutputPort midiOutput;
@@ -26,6 +28,11 @@ public class UseCaseInteractor {
 
     public void sendToneToDevice(Tone tone, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
         midiOutput.sendToneToDevice(tone, deviceNameSubstring);
+    }
+
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        Chord newChord = new Chord(List.of(53,57,59));  // löschen
+        midiOutput.sendChordToDevice(newChord, deviceNameSubstring);
     }
 
     public void loadHindemithChordFile() {
