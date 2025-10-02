@@ -31,8 +31,7 @@ public class UseCaseInteractor {
     }
 
     public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        Chord newChord = new Chord(List.of(53,57,59));  // löschen
-        midiOutput.sendChordToDevice(newChord, deviceNameSubstring);
+        midiOutput.sendChordToDevice(chord, deviceNameSubstring);
     }
 
     public void loadHindemithChordFile() {

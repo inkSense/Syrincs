@@ -59,8 +59,76 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
         send(tone, info, 0);
     }
 
-    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+    @Override
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring) {
+        if (chord == null) return;
+        try {
+            MidiDevice.Info info = (deviceNameSubstring != null && !deviceNameSubstring.isEmpty())
+                    ? findOutputByName(deviceNameSubstring)
+                    : null;
+            if (info == null) {
+                info = autoSelectDefaultOutput();
+            }
+            if (info == null) {
+                System.out.println("[MIDI] No suitable output device found" +
+                        (deviceNameSubstring != null ? " for substring '" + deviceNameSubstring + "'" : ""));
+                return;
+            }
 
+            MidiDevice device = MidiSystem.getMidiDevice(info);
+            boolean openedHere = false;
+            try {
+                if (!device.isOpen()) { device.open(); openedHere = true; }
+                Receiver receiver = device.getReceiver();
+                try {
+                    sendChordViaReceiver(receiver, chord, 0);
+                } finally {
+                    try { receiver.close(); } catch (Exception ignored) {}
+                }
+            } finally {
+                if (openedHere && device.isOpen()) device.close();
+            }
+        } catch (Exception e) {
+            // Do not propagate checked exceptions: the port method does not declare throws.
+            // Log to console to aid debugging in a console tool.
+            System.out.println("[MIDI] Failed to send chord: " + e.getMessage());
+        }
+    }
+
+    private void sendChordViaReceiver(Receiver receiver, Chord chord, int channel) throws InvalidMidiDataException, InterruptedException {
+        if (receiver == null) throw new IllegalArgumentException("receiver must not be null");
+        if (chord == null) throw new IllegalArgumentException("chord must not be null");
+        if (channel < 0 || channel > 15) throw new IllegalArgumentException("channel must be between 0 and 15");
+
+        List<Integer> notes = chord.getNotes();
+        if (notes == null || notes.isEmpty()) return;
+
+        int velocity = 96; // default moderately strong
+        long durationMs = 200; // default short duration for a chord
+        long now = -1; // immediate
+
+        // Note ON for all notes
+        for (Integer n : notes) {
+            if (n == null) continue;
+            int pitch = n;
+            if (pitch < 0) pitch = 0; if (pitch > 127) pitch = 127;
+            ShortMessage on = new ShortMessage();
+            on.setMessage(ShortMessage.NOTE_ON, channel, pitch, velocity);
+            receiver.send(on, now);
+        }
+
+        // Hold duration
+        if (durationMs > 0) Thread.sleep(durationMs);
+
+        // Note OFF for all notes
+        for (Integer n : notes) {
+            if (n == null) continue;
+            int pitch = n;
+            if (pitch < 0) pitch = 0; if (pitch > 127) pitch = 127;
+            ShortMessage off = new ShortMessage();
+            off.setMessage(ShortMessage.NOTE_OFF, channel, pitch, 0);
+            receiver.send(off, now);
+        }
     }
 
     // Prefer Roland piano if present, otherwise the first available MIDI OUT
