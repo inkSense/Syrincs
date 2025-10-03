@@ -3,6 +3,7 @@ package syrincs.a_domain.hindemith;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class Series2 {
 
@@ -35,6 +36,89 @@ public class Series2 {
     // Algorithmus zur Bestimmung eines Akkordes:
     // "Die Bestandaufnahme der Klänge scheidet darum das gesamte Akkordmaterial zunächst in zwei Hauptgruppen: In der Gruppe A sind alle tritonusfreien Klänge. Den Akkorden mit Tritonus wird die Gruppe B zugewiesen." S.119
 
+    // -------- Public API (ähnlich zu Series1, aber für Reihen-2-Intervalle) --------
 
+    /**
+     * Liefert die Reihen-2-Intervalle in ihrer Wert-Reihenfolge (Oktave bis Tritonus).
+     * Werte sind Halbtonschritte: [12, 7, 5, 4, 8, 3, 9, 2, 10, 1, 11, 6]
+     */
+    public List<Integer> getIntervals() {
+        return series2; // already unmodifiable
+    }
 
+    /**
+     * Gibt die harmonische Wertigkeit (ohne Oktave und Tritonus) zurück, links = konsonanter.
+     */
+    public List<Integer> getHarmonicPowerOrder() {
+        return List.copyOf(harmonicPower);
+    }
+
+    /**
+     * Gibt die melodische Wertigkeit zurück (Umkehrung der harmonischen Liste).
+     */
+    public List<Integer> getMelodicPowerOrder() {
+        return List.copyOf(melodicPower);
+    }
+
+    /**
+     * Berechnet absolute MIDI-Töne (Grundton + Intervall der Reihe 2 in Halbtonschritten).
+     */
+    public List<Integer> getSeries2Of(int midiBase) {
+        List<Integer> res = new ArrayList<>(series2.size());
+        for (Integer st : series2) {
+            res.add(midiBase + st);
+        }
+        return res;
+    }
+
+    /**
+     * Liefert zu einem Verwandtschaftsgrad (0..11) den entsprechenden Ton (Grundton + Intervall).
+     * 0 = Oktave (+12), 11 = Tritonus (+6). Wir validieren streng 0..11.
+     */
+    public int getRelativeByDegree(int midiBase, int degree) {
+        if (degree < 0 || degree > 11) {
+            throw new IllegalArgumentException("degree must be between 0 and 11");
+        }
+        int semitones = series2.get(degree);
+        return midiBase + semitones;
+    }
+
+    /**
+     * Bestimmt aus einem Zweiklang den zu bevorzugenden Grundton nach der Root-Logik:
+     * - Für 7,4,3,10,11: unterer Ton ist Grundton
+     * - Für 5,8,9,2,1: oberer Ton ist Grundton
+     * - Für Tritonus (6): keine klare Tendenz – optional leer; Overload gibt unteren Ton zurück
+     */
+    public Optional<Integer> chooseRootNoteOptional(int lowerMidi, int upperMidi) {
+        if (upperMidi < lowerMidi) {
+            throw new IllegalArgumentException("upperMidi must be >= lowerMidi");
+        }
+        int iv = Math.floorMod(upperMidi - lowerMidi, 12);
+        if (iv == 0) return Optional.of(lowerMidi); // Einklang
+        if (iv == 6) return Optional.empty(); // Tritonus unbestimmt
+        if (chooseLowerNoteAsRootNote.contains(iv)) return Optional.of(lowerMidi);
+        if (chooseUpperNoteAsRootNote.contains(iv)) return Optional.of(upperMidi);
+        // Fallback: falls etwas außerhalb der Listen liegt, bevorzugen wir den unteren Ton
+        return Optional.of(lowerMidi);
+    }
+
+    /**
+     * Wie chooseRootNoteOptional, aber gibt bei Unbestimmtheit (Tritonus) den unteren Ton zurück.
+     */
+    public int chooseRootNote(int lowerMidi, int upperMidi) {
+        return chooseRootNoteOptional(lowerMidi, upperMidi).orElse(lowerMidi);
+    }
+
+    public boolean isTritone(int semitones) {
+        return Math.floorMod(semitones, 12) == 6;
+    }
+
+    /**
+     * Liefert die Konsonanz-Rangzahl (Index in series2, 0 ist am konsonantesten: Oktave). 0 Halbton wird als 12 behandelt.
+     */
+    public int getConsonanceRankForSemitones(int semitones) {
+        int mod = Math.floorMod(semitones, 12);
+        int key = (mod == 0) ? 12 : mod;
+        return series2.indexOf(key);
+    }
 }
