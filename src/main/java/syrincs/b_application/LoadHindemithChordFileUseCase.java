@@ -1,9 +1,8 @@
 package syrincs.b_application;
 
 import syrincs.a_domain.ChordCalculator.Chord;
-import syrincs.a_domain.hindemith.FrameIntervalRange;
-import syrincs.a_domain.hindemith.Hindemith;
-import syrincs.a_domain.Scale.*;
+import syrincs.a_domain.ChordCalculator.FrameIntervalRange;
+import syrincs.a_domain.ChordCalculator.Hindemith;
 
 import java.util.*;
 

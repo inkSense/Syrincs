@@ -3,6 +3,8 @@ package syrincs.a_domain.hindemith;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import syrincs.a_domain.ChordCalculator.Chord;
+import syrincs.a_domain.ChordCalculator.FrameIntervalRange;
+import syrincs.a_domain.ChordCalculator.Hindemith;
 
 import java.util.List;
 

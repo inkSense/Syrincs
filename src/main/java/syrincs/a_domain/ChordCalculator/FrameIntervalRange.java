@@ -1,4 +1,4 @@
-package syrincs.a_domain.hindemith;
+package syrincs.a_domain.ChordCalculator;
 
 public enum FrameIntervalRange {
     INTERVALS_0_TO_7,  //bis Quinte

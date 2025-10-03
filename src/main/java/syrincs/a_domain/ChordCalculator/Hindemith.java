@@ -1,13 +1,13 @@
-package syrincs.a_domain.hindemith;
+package syrincs.a_domain.ChordCalculator;
 
 import syrincs.a_domain.Scale.*;
-import syrincs.a_domain.ChordCalculator.*;
 
 import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,8 +29,6 @@ public class Hindemith {
     public ScaleRepository getScaleRepository() {
         return scaleRepository;
     }
-
-    //public Map<String, Map<Integer, Map<FrameIntervalRange, List<Chord>>>> getAllChords() { return allChords;}
 
     public Map<String, Map< Integer, Map<Integer, Map<FrameIntervalRange, List<Chord>>>>> getAllChords() {return allChords;}
 
@@ -154,8 +152,6 @@ public class Hindemith {
                         int frameInterval = chord.getFrameInterval();
                         FrameIntervalRange intervalRange = getFrameIntervalRange(frameInterval);
 
-                        //frameIntervalMap.computeIfAbsent(intervalRange, k -> new ArrayList<>()).add(chord);
-
                         allChords.computeIfAbsent(scale.getName(), k -> new HashMap<>())
                                 .computeIfAbsent(dissDegree, k -> new HashMap<>())
                                 .computeIfAbsent(numNotes, k -> new HashMap<>())
@@ -177,6 +173,7 @@ public class Hindemith {
             }
         }
     }
+
     public void saveAllChordsToFile(int minLowerNote, int maxUpperNote) {
         Path path = Paths.get(System.getProperty("user.dir"),
                 "/data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
