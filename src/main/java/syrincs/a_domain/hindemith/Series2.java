@@ -33,8 +33,6 @@ public class Series2 {
         Das Maximum der Schmiegsamkeit + Farbigkeit liegt dann in er gr. Terz. */
     private final List<Integer> melodicPower = harmonicPower.reversed().stream().toList();
 
-    // Algorithmus zur Bestimmung eines Akkordes:
-    // "Die Bestandaufnahme der Klänge scheidet darum das gesamte Akkordmaterial zunächst in zwei Hauptgruppen: In der Gruppe A sind alle tritonusfreien Klänge. Den Akkorden mit Tritonus wird die Gruppe B zugewiesen." S.119
 
     // -------- Public API (ähnlich zu Series1, aber für Reihen-2-Intervalle) --------
 
