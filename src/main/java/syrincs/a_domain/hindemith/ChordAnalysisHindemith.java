@@ -2,7 +2,7 @@ package syrincs.a_domain.hindemith;
 
 import syrincs.a_domain.ChordCalculator.Chord;
 import syrincs.a_domain.ChordCalculator.ChordCalculator;
-import syrincs.a_domain.ChordCalculator.Constraint;
+import syrincs.a_domain.ChordCalculator.ChordSpecification;
 import syrincs.a_domain.Interval;
 
 import java.util.*;
@@ -72,9 +72,9 @@ public class ChordAnalysisHindemith {
 
     private Optional<Integer> classifyChordGroup(Chord chord, int bassNote) {
         ChordCalculator calc = new ChordCalculator();
-        Map<Integer, Constraint> constraints = calc.getDissDegreeConstraints();
+        Map<Integer, ChordSpecification> constraints = calc.getDissDegreeConstraints();
         for (int dg = 0; dg <= 13; dg++) {
-            Constraint c = constraints.get(dg);
+            ChordSpecification c = constraints.get(dg);
             if (c == null) continue;
             if (passesConstraint(chord, c, bassNote)) {
                 return Optional.of(dg);
@@ -84,7 +84,7 @@ public class ChordAnalysisHindemith {
     }
 
     // Re-Implementierung der Prüf-Logik, angelehnt an ChordCalculator.checkIntervals(...)
-    private boolean passesConstraint(Chord chord, Constraint c, int bassNote) {
+    private boolean passesConstraint(Chord chord, ChordSpecification c, int bassNote) {
         List<Interval> allIntervals = chord.getAllIntervals();
         List<Interval> rootIntervals = chord.getRootIntervals();
         return intervalsNotInSet(allIntervals, c.getExcludeAll())

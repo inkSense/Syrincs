@@ -111,7 +111,7 @@ public class Hindemith {
         List<Scale> scales = scaleRepository.getScales();
         int[] numNotesAll = {3, 4, 5, 6, 7, 8};
         int[] dissDegreesAll = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};   //{}; //{0,1,2,3,4,5,6,7,8,9,10,11,12,13}
-        Map<Integer, Constraint> constraints = chordCalculator.getDissDegreeConstraints();
+        Map<Integer, ChordSpecification> constraints = chordCalculator.getDissDegreeConstraints();
 
 
 
@@ -122,26 +122,26 @@ public class Hindemith {
                 System.out.println("    numNotes: " + numNotes);
                 for (int dissDegree : dissDegreesAll) {
                     System.out.print("        dissDegree: " + dissDegree + ",");
-                    Constraint constraint = constraints.get(dissDegree);
+                    ChordSpecification chordSpecification = constraints.get(dissDegree);
                     List<Chord> chords = null;
                     switch(numNotes) {
                         case 3:
-                            chords = chordCalculator.generateChordsForThreeNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForThreeNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                         case 4:
-                            chords = chordCalculator.generateChordsForFourNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForFourNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                         case 5:
-                            chords = chordCalculator.generateChordsForFiveNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForFiveNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                         case 6:
-                            chords = chordCalculator.generateChordsForSixNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForSixNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                         case 7:
-                            chords = chordCalculator.generateChordsForSevenNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForSevenNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                         case 8:
-                            chords = chordCalculator.generateChordsForEightNotes(scale, constraint, minLowerNote, maxUpperNote);
+                            chords = chordCalculator.generateChordsForEightNotes(scale, chordSpecification, minLowerNote, maxUpperNote);
                             break;
                     }
 

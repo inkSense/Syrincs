@@ -11,47 +11,47 @@ import syrincs.a_domain.Scale.ScaleRepository;
 
 public class ChordCalculator {
 
-    private Map<Integer, Constraint> dissDegreeConstraints = new HashMap<>();
+    private Map<Integer, ChordSpecification> dissDegreeConstraints = new HashMap<>();
 
 
     public ChordCalculator() {
 
-        dissDegreeConstraints.put(0, new Constraint(Set.of(1, 2, 6, 10, 11), null,  null, "==", false, false, false)); // A) I. 1.
-        dissDegreeConstraints.put(1, new Constraint(Set.of(1, 2, 6, 10, 11), null,  null, "!=", false, false, false)); // A) I. 2.
-        dissDegreeConstraints.put(2, new Constraint(Set.of(1, 2, 11), Set.of(6, 10),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. a
-        dissDegreeConstraints.put(3, new Constraint(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. b 1.
-        dissDegreeConstraints.put(4, new Constraint(Set.of(1, 11), Set.of(6),  Set.of(7,5,4,8,3,9), "!=", false, false, false, java.util.List.of(java.util.Set.of(2,10)))); // B) II. b 2.
-        dissDegreeConstraints.put(5, new Constraint(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), null, true, false, false)); // B) II. b 3.
-        dissDegreeConstraints.put(6, new Constraint(Set.of(1,6,11),  null, Set.of(2,10), "==", false, false, false)); // A) III. 1.1 (vgl. S. 127)
-        dissDegreeConstraints.put(7, new Constraint(Set.of(1,6,11),  null, Set.of(2,10), "!=", false, false, false)); // A) III. 2.1 (vgl. S. 127)
-        dissDegreeConstraints.put(8, new Constraint(Set.of(6),  null, Set.of(1,11), "==", false, false, false)); // A) III. 1.2 (vgl. S. 127)
-        dissDegreeConstraints.put(9, new Constraint(Set.of(6),  null, Set.of(1,11), "!=", false, false, false)); // A) III. 2.2 (vgl. S. 127)
-        dissDegreeConstraints.put(10, new Constraint(null, Set.of(6), Set.of(1, 11),  "==", false, false, false)); // B) IV. 1.
-        dissDegreeConstraints.put(11, new Constraint(null, Set.of(6), Set.of(1, 11),  "!=", false, false, false)); // B) IV. 2.
-        dissDegreeConstraints.put(12, new Constraint(null, null,  null, null, false, true, false)); // A) V.
-        dissDegreeConstraints.put(13, new Constraint(null, Set.of(6),  null, null, false, false, true)); // B) VI.
+        dissDegreeConstraints.put(0, new ChordSpecification(Set.of(1, 2, 6, 10, 11), null,  null, "==", false, false, false)); // A) I. 1.
+        dissDegreeConstraints.put(1, new ChordSpecification(Set.of(1, 2, 6, 10, 11), null,  null, "!=", false, false, false)); // A) I. 2.
+        dissDegreeConstraints.put(2, new ChordSpecification(Set.of(1, 2, 11), Set.of(6, 10),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. a
+        dissDegreeConstraints.put(3, new ChordSpecification(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. b 1.
+        dissDegreeConstraints.put(4, new ChordSpecification(Set.of(1, 11), Set.of(6),  Set.of(7,5,4,8,3,9), "!=", false, false, false, java.util.List.of(java.util.Set.of(2,10)))); // B) II. b 2.
+        dissDegreeConstraints.put(5, new ChordSpecification(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), null, true, false, false)); // B) II. b 3.
+        dissDegreeConstraints.put(6, new ChordSpecification(Set.of(1,6,11),  null, Set.of(2,10), "==", false, false, false)); // A) III. 1.1 (vgl. S. 127)
+        dissDegreeConstraints.put(7, new ChordSpecification(Set.of(1,6,11),  null, Set.of(2,10), "!=", false, false, false)); // A) III. 2.1 (vgl. S. 127)
+        dissDegreeConstraints.put(8, new ChordSpecification(Set.of(6),  null, Set.of(1,11), "==", false, false, false)); // A) III. 1.2 (vgl. S. 127)
+        dissDegreeConstraints.put(9, new ChordSpecification(Set.of(6),  null, Set.of(1,11), "!=", false, false, false)); // A) III. 2.2 (vgl. S. 127)
+        dissDegreeConstraints.put(10, new ChordSpecification(null, Set.of(6), Set.of(1, 11),  "==", false, false, false)); // B) IV. 1.
+        dissDegreeConstraints.put(11, new ChordSpecification(null, Set.of(6), Set.of(1, 11),  "!=", false, false, false)); // B) IV. 2.
+        dissDegreeConstraints.put(12, new ChordSpecification(null, null,  null, null, false, true, false)); // A) V.
+        dissDegreeConstraints.put(13, new ChordSpecification(null, Set.of(6),  null, null, false, false, true)); // B) VI.
     }
 
 
-    public Map<Integer, Constraint> getDissDegreeConstraints() {
+    public Map<Integer, ChordSpecification> getDissDegreeConstraints() {
         return dissDegreeConstraints;
     }
 
 
-    public List<Chord> generateChordsForThreeNotes(Scale scale, Constraint constraint, int minLowerNote, int maxUpperNote) {
+    public List<Chord> generateChordsForThreeNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 2; n0++) {
             if (!isInScale(n0, scale)) continue;
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 1; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
                 for (int n2 = n1 + 1; n2 <= maxUpperNote; n2++) {
                     List<Integer> notes = Arrays.asList(n0, n1, n2);
                     Chord chord = new Chord(notes);
-                    if ( !(checkIntervals(chord, constraint) &&
+                    if ( !(checkIntervals(chord, chordSpecification) &&
                                     isInScale(n2, scale) &&
                                     threeNotesAreDifferentFromEachOther(notes) &&
-                                    rootNoteEqualsBassNote(n0, chord.getRootNote(), constraint.getRootNoteEqual())
+                                    rootNoteEqualsBassNote(n0, chord.getRootNote(), chordSpecification.getRootNoteEqual())
                             )) continue;
                     chords.add(chord);
                 }
@@ -60,27 +60,27 @@ public class ChordCalculator {
         return chords;
     }
 
-    public List<Chord> generateChordsForFourNotes(Scale scale, Constraint constraint, int minLowerNote, int maxUpperNote) {
+    public List<Chord> generateChordsForFourNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 3; n0++) {
             if (!isInScale(n0, scale)) continue;
 
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 2; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
 
                 for(int n2 = n1 +1; n2 <= maxUpperNote - 1; n2++) {
                     List<Integer> notes2 = Arrays.asList(n0, n1, n2);
                     Chord chord2 = new Chord(notes2);
-                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
+                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
 
                     for (int n3 = n2 + 1; n3 <= maxUpperNote; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if (!(checkIntervals(chord3, constraint) &&
+                        if (!(checkIntervals(chord3, chordSpecification) &&
                                 isInScale(n3, scale) &&
                                 threeNotesAreDifferentFromEachOther(notes3) &&
-                                rootNoteEqualsBassNote(n0, chord3.getRootNote(), constraint.getRootNoteEqual())
+                                rootNoteEqualsBassNote(n0, chord3.getRootNote(), chordSpecification.getRootNoteEqual())
                         )) continue;
                         chords.add(chord3);
                     }
@@ -90,32 +90,32 @@ public class ChordCalculator {
         return chords;
     }
 
-    public List<Chord> generateChordsForFiveNotes(Scale scale, Constraint constraint, int minLowerNote, int maxUpperNote) {
+    public List<Chord> generateChordsForFiveNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 4; n0++) {
             if (!isInScale(n0, scale)) continue;
 
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 3; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
 
                 for(int n2 = n1 +1; n2 <= maxUpperNote - 2; n2++) {
                     List<Integer> notes2 = Arrays.asList(n0, n1, n2);
                     Chord chord2 = new Chord(notes2);
-                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
+                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
 
                     for(int n3 = n2 +1; n3 <= maxUpperNote - 1; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
+                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
 
                     for (int n4 = n3 + 1; n4 <= maxUpperNote; n4++) {
                             List<Integer> notes4 = Arrays.asList(n0, n1, n2, n3, n4);
                             Chord chord4 = new Chord(notes4);
-                            if (!(checkIntervals(chord4, constraint) &&
+                            if (!(checkIntervals(chord4, chordSpecification) &&
                                     isInScale(n4, scale) &&
                                     threeNotesAreDifferentFromEachOther(notes4) &&
-                                    rootNoteEqualsBassNote(n0, chord4.getRootNote(), constraint.getRootNoteEqual())
+                                    rootNoteEqualsBassNote(n0, chord4.getRootNote(), chordSpecification.getRootNoteEqual())
                             )) continue;
                             chords.add(chord4);
                         }
@@ -126,37 +126,37 @@ public class ChordCalculator {
         return chords;
     }
 
-    public List<Chord> generateChordsForSixNotes(Scale scale, Constraint constraint, int minLowerNote, int maxUpperNote) {
+    public List<Chord> generateChordsForSixNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 5; n0++) {
             if (!isInScale(n0, scale)) continue;
 
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 4; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
 
                 for(int n2 = n1 +1; n2 <= maxUpperNote - 3; n2++) {
                     List<Integer> notes2 = Arrays.asList(n0, n1, n2);
                     Chord chord2 = new Chord(notes2);
-                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
+                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
 
                     for(int n3 = n2 +1; n3 <= maxUpperNote - 2; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
+                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
 
                         for(int n4 = n3 +1; n4 <= maxUpperNote - 1; n4++) {
                             List<Integer> notes4 = Arrays.asList(n0, n1, n2, n3, n4);
                             Chord chord4 = new Chord(notes4);
-                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
+                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
 
                             for (int n5 = n4 + 1; n5 <= maxUpperNote; n5++) {
                                 List<Integer> notes5 = Arrays.asList(n0, n1, n2, n3, n4, n5);
                                 Chord chord5 = new Chord(notes5);
-                                if (!(checkIntervals(chord5, constraint) &&
+                                if (!(checkIntervals(chord5, chordSpecification) &&
                                         isInScale(n5, scale) &&
                                         threeNotesAreDifferentFromEachOther(notes5) &&
-                                        rootNoteEqualsBassNote(n0, chord5.getRootNote(), constraint.getRootNoteEqual())
+                                        rootNoteEqualsBassNote(n0, chord5.getRootNote(), chordSpecification.getRootNoteEqual())
                                 )) continue;
                                 chords.add(chord5);
                             }
@@ -167,42 +167,42 @@ public class ChordCalculator {
         }
         return chords;
     }
-    public List<Chord> generateChordsForSevenNotes(Scale scale, Constraint constraint, int minLowerNote,  int maxUpperNote) {
+    public List<Chord> generateChordsForSevenNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 6; n0++) {
             if (!isInScale(n0, scale)) continue;
 
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 5; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
 
                 for(int n2 = n1 +1; n2 <= maxUpperNote - 4; n2++) {
                     List<Integer> notes2 = Arrays.asList(n0, n1, n2);
                     Chord chord2 = new Chord(notes2);
-                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
+                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
 
                     for(int n3 = n2 +1; n3 <= maxUpperNote - 3; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
+                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
 
                         for(int n4 = n3 +1; n4 <= maxUpperNote - 2; n4++) {
                             List<Integer> notes4 = Arrays.asList(n0, n1, n2, n3, n4);
                             Chord chord4 = new Chord(notes4);
-                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
+                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
 
                             for(int n5 = n4 +1; n5 <= maxUpperNote - 1; n5++) {
                                 List<Integer> notes5 = Arrays.asList(n0, n1, n2, n3, n4, n5);
                                 Chord chord5 = new Chord(notes5);
-                                if ( !( intervalsNotInSet(chord5.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n5, scale) ) ) continue;
+                                if ( !( intervalsNotInSet(chord5.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n5, scale) ) ) continue;
 
                                 for (int n6 = n5 + 1; n6 <= maxUpperNote; n6++) {
                                     List<Integer> notes6 = Arrays.asList(n0, n1, n2, n3, n4, n5, n6);
                                     Chord chord6 = new Chord(notes6);
-                                    if (!(checkIntervals(chord6, constraint) &&
+                                    if (!(checkIntervals(chord6, chordSpecification) &&
                                             isInScale(n6, scale) &&
                                             threeNotesAreDifferentFromEachOther(notes6) &&
-                                            rootNoteEqualsBassNote(n0, chord6.getRootNote(), constraint.getRootNoteEqual())
+                                            rootNoteEqualsBassNote(n0, chord6.getRootNote(), chordSpecification.getRootNoteEqual())
                                     )) continue;
                                     chords.add(chord6);
                                 }
@@ -215,47 +215,47 @@ public class ChordCalculator {
         return chords;
     }
 
-    public List<Chord> generateChordsForEightNotes(Scale scale, Constraint constraint, int minLowerNote, int maxUpperNote) {
+    public List<Chord> generateChordsForEightNotes(Scale scale, ChordSpecification chordSpecification, int minLowerNote, int maxUpperNote) {
         List<Chord> chords = new ArrayList<>();
         for (int n0 = minLowerNote; n0 <= maxUpperNote - 6; n0++) {
             if (!isInScale(n0, scale)) continue;
 
             for (int n1 = n0 + 1; n1 <= maxUpperNote - 5; n1++) {
                 int interval = (n1 - n0) % 12;
-                if( !( intervalNotInSet(interval, constraint.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
+                if( !( intervalNotInSet(interval, chordSpecification.getExcludeAll()) && isInScale(n1, scale) ) ) continue;
 
                 for(int n2 = n1 +1; n2 <= maxUpperNote - 4; n2++) {
                     List<Integer> notes2 = Arrays.asList(n0, n1, n2);
                     Chord chord2 = new Chord(notes2);
-                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
+                    if ( !( intervalsNotInSet(chord2.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n2, scale) ) ) continue;
 
                     for(int n3 = n2 +1; n3 <= maxUpperNote - 3; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
+                        if ( !( intervalsNotInSet(chord3.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n3, scale) ) ) continue;
 
                         for(int n4 = n3 +1; n4 <= maxUpperNote - 2; n4++) {
                             List<Integer> notes4 = Arrays.asList(n0, n1, n2, n3, n4);
                             Chord chord4 = new Chord(notes4);
-                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
+                            if ( !( intervalsNotInSet(chord4.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n4, scale) ) ) continue;
 
                             for(int n5 = n4 +1; n5 <= maxUpperNote - 1; n5++) {
                                 List<Integer> notes5 = Arrays.asList(n0, n1, n2, n3, n4, n5);
                                 Chord chord5 = new Chord(notes5);
-                                if ( !( intervalsNotInSet(chord5.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n5, scale) ) ) continue;
+                                if ( !( intervalsNotInSet(chord5.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n5, scale) ) ) continue;
 
                                 for(int n6 = n5 +1; n6 <= maxUpperNote - 1; n6++) {
                                     List<Integer> notes6 = Arrays.asList(n0, n1, n2, n3, n4, n5, n6);
                                     Chord chord6 = new Chord(notes6);
-                                    if ( !( intervalsNotInSet(chord6.getAllIntervals(), constraint.getExcludeAll() ) && isInScale(n6, scale) ) ) continue;
+                                    if ( !( intervalsNotInSet(chord6.getAllIntervals(), chordSpecification.getExcludeAll() ) && isInScale(n6, scale) ) ) continue;
 
                                     for (int n7 = n6 + 1; n7 <= maxUpperNote; n7++) {
                                         List<Integer> notes7 = Arrays.asList(n0, n1, n2, n3, n4, n5, n6, n7);
                                         Chord chord7 = new Chord(notes7);
-                                        if (!(checkIntervals(chord7, constraint) &&
+                                        if (!(checkIntervals(chord7, chordSpecification) &&
                                                 isInScale(n7, scale) &&
                                                 threeNotesAreDifferentFromEachOther(notes7) &&
-                                                rootNoteEqualsBassNote(n0, chord7.getRootNote(), constraint.getRootNoteEqual())
+                                                rootNoteEqualsBassNote(n0, chord7.getRootNote(), chordSpecification.getRootNoteEqual())
                                         )) continue;
                                         chords.add(chord7);
                                     }
@@ -331,20 +331,20 @@ public class ChordCalculator {
         return constraintValue == false || intervals.stream().filter(i -> i.getDifferenceWithoutOctavations() == 6).count() >= 2;
     }
 
-    private boolean checkIntervals(Chord chord, Constraint constraint) {
+    private boolean checkIntervals(Chord chord, ChordSpecification chordSpecification) {
         List<Interval> allIntervals = chord.getAllIntervals();
         List<Interval> rootIntervals = chord.getRootIntervals();
         //List<Integer> notes = chord.getNotes();
 
 
 
-        return  intervalsNotInSet(allIntervals, constraint.getExcludeAll()) &&
-                layersOfMajor3rdOrPerfect4th(rootIntervals, constraint.getLayersOfMajor3OrPerfect4()) &&
-                dimOrDim7(rootIntervals, constraint.getDimOrDim7()) &&
-                includesAtLeastOneOf(allIntervals, constraint.getIncludeAtLeastOneOf()) &&
-                includesAll(allIntervals, constraint.getIncludeAll()) &&
-                includesAllWithAlternatives(allIntervals, constraint.getIncludeAllWithAlternatives()) &&
-                hatMehrereTritoni(chord.calculateAllIntervalsOfPitchClasses(), constraint.getMehrereTritoni());
+        return  intervalsNotInSet(allIntervals, chordSpecification.getExcludeAll()) &&
+                layersOfMajor3rdOrPerfect4th(rootIntervals, chordSpecification.getLayersOfMajor3OrPerfect4()) &&
+                dimOrDim7(rootIntervals, chordSpecification.getDimOrDim7()) &&
+                includesAtLeastOneOf(allIntervals, chordSpecification.getIncludeAtLeastOneOf()) &&
+                includesAll(allIntervals, chordSpecification.getIncludeAll()) &&
+                includesAllWithAlternatives(allIntervals, chordSpecification.getIncludeAllWithAlternatives()) &&
+                hatMehrereTritoni(chord.calculateAllIntervalsOfPitchClasses(), chordSpecification.getMehrereTritoni());
     }
 
     private boolean tritonusIstUntergeordnet(List<Interval> intervals){
@@ -391,17 +391,17 @@ public class ChordCalculator {
         List<Interval> rootIntervals = chord.getRootIntervals();
         int dissDegree = 3;
 
-        Constraint constraint = chordCalculator.getDissDegreeConstraints().get(dissDegree); //Nimmt Dissdegree entgegenen, liefert constraint
+        ChordSpecification chordSpecification = chordCalculator.getDissDegreeConstraints().get(dissDegree); //Nimmt Dissdegree entgegenen, liefert constraint
 
         System.out.println( " "+
                 chordCalculator.isInScale(notes.get(0), scale) + " " + chordCalculator.isInScale(notes.get(1), scale) + " "+ chordCalculator.isInScale(notes.get(2), scale) + " " +
-                chordCalculator.intervalNotInSet(interval, constraint.getExcludeAll()) + " " +
-                chordCalculator.intervalsNotInSet(allIntervals, constraint.getExcludeAll()) + " "+
-                chordCalculator.layersOfMajor3rdOrPerfect4th(rootIntervals, constraint.getLayersOfMajor3OrPerfect4()) + " "+
-                chordCalculator.dimOrDim7(rootIntervals, constraint.getDimOrDim7()) +" "+
-                chordCalculator.includesAtLeastOneOf(allIntervals, constraint.getIncludeAtLeastOneOf()) +" "+
-                chordCalculator.includesAll(allIntervals, constraint.getIncludeAll()) +" "+
-                chordCalculator.hatMehrereTritoni(allIntervals, constraint.getMehrereTritoni())
+                chordCalculator.intervalNotInSet(interval, chordSpecification.getExcludeAll()) + " " +
+                chordCalculator.intervalsNotInSet(allIntervals, chordSpecification.getExcludeAll()) + " "+
+                chordCalculator.layersOfMajor3rdOrPerfect4th(rootIntervals, chordSpecification.getLayersOfMajor3OrPerfect4()) + " "+
+                chordCalculator.dimOrDim7(rootIntervals, chordSpecification.getDimOrDim7()) +" "+
+                chordCalculator.includesAtLeastOneOf(allIntervals, chordSpecification.getIncludeAtLeastOneOf()) +" "+
+                chordCalculator.includesAll(allIntervals, chordSpecification.getIncludeAll()) +" "+
+                chordCalculator.hatMehrereTritoni(allIntervals, chordSpecification.getMehrereTritoni())
 
 
         );
