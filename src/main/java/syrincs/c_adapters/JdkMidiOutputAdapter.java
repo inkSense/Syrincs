@@ -103,8 +103,8 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
         List<Integer> notes = chord.getNotes();
         if (notes == null || notes.isEmpty()) return;
 
-        int velocity = 96; // default moderately strong
-        long durationMs = 200; // default short duration for a chord
+        int velocity = 32; // default soft
+        long durationMs = 100; // default short duration for a chord
         long now = -1; // immediate
 
         // Note ON for all notes

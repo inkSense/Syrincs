@@ -47,12 +47,11 @@ class SendMidiNoteUseCaseConnectionTest {
         Assumptions.assumeTrue(target != null,
                 "[MIDI] No Roland/DP603 output found. Skipping send test.");
 
-        // *** WICHTIG: effektiv final machen ***
         final String deviceName = target.getName();
 
         System.out.println("[MIDI] Found target output: " + deviceName + " -> attempting to send a note");
 
-        Tone tone = new Tone(100, 60, 0.5);
+        Tone tone = new Tone(100, 60, 0.25);
 
         assertDoesNotThrow(() -> interactor.sendToneToDevice(tone, deviceName),
                 "Sending tone to device should not throw");

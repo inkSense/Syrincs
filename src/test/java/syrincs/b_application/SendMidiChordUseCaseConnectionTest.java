@@ -39,7 +39,7 @@ class SendMidiChordUseCaseConnectionTest {
         System.out.println("[MIDI] Found target output: " + deviceName + " -> attempting to send a chord");
 
         // C major triad within safe MIDI range
-        Chord chord = new Chord(List.of(60, 64, 67));
+        Chord chord = new Chord(List.of(64, 67, 72));
 
         assertDoesNotThrow(() -> interactor.sendChordToDevice(chord, deviceName),
                 "Sending chord to device should not throw");

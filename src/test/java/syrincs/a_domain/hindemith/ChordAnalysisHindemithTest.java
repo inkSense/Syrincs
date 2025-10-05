@@ -1,0 +1,123 @@
+package syrincs.a_domain.hindemith;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ChordAnalysisHindemithTest {
+
+    @Test
+    @DisplayName("analyze: C-E-G is group A, root=C, degree=0, frame interval = 7")
+    void analyze_majorTriad_basic() {
+        ChordAnalysisHindemith ca = new ChordAnalysisHindemith();
+        var res = ca.analyze(List.of(60, 64, 67));
+        assertEquals(ChordAnalysisHindemith.Column.A_TRITONE_FREE, res.column);
+        assertTrue(res.rootNote.isPresent());
+        assertEquals(60, res.rootNote.get());
+        assertTrue(res.group.isPresent());
+        assertEquals(0, res.group.get());
+        assertEquals(7, res.frameInterval);
+        assertEquals(List.of(60, 64, 67), res.notes);
+    }
+
+    @Test
+    @DisplayName("analyze: chord with tritone goes to group B; verifies root and degree")
+    void analyze_tritoneChord_groupB_root_and_degree() {
+        ChordAnalysisHindemith ca = new ChordAnalysisHindemith();
+        // Contains a tritone 60-66; best interval is minor third 66-69, hence root 66 per project logic
+        var res = ca.analyze(List.of(60, 66, 69));
+        assertEquals(ChordAnalysisHindemith.Column.B_WITH_TRITONE, res.column);
+        assertTrue(res.rootNote.isPresent());
+        assertEquals(66, res.rootNote.get());
+        assertTrue(res.group.isPresent());
+        assertEquals(13, res.group.get());
+        assertEquals(9, res.frameInterval);
+        assertEquals(List.of(60, 66, 69), res.notes);
+    }
+
+
+    // ------------------------------------------------------------
+    // Redundante/erweiterbare Beispiele: Hier kannst du eigene Akkorde eintragen
+    // ------------------------------------------------------------
+
+    /**
+     * Füge einfach weitere Tests ein, z. B.:
+     * new Example(List.of(59, 62, 65), ChordAnalysis.Group.A_TRITONE_FREE, 59, null)
+     * - expectedRoot und expectedGroup dürfen null sein, wenn du nur die Gruppe testen willst.
+     */
+    private static List<Example> userExamples() {
+        return List.of(
+                new Example(List.of(60, 64, 67), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 60, 0),
+                new Example(List.of(60, 63, 67), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 60, 0),
+
+                new Example(List.of(60, 63, 68), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 68, 1),
+                new Example(List.of(60, 64, 69), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 69, 1),
+                new Example(List.of(60, 65, 69), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 65, 1),
+                new Example(List.of(60, 65, 68), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 65, 1),
+                new Example(List.of(60, 65, 68), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 65, 1),
+
+                new Example(List.of(60, 64, 70), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 2),
+                new Example(List.of(60, 64, 67, 70), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 2),
+
+                new Example(List.of(60, 64, 67, 70, 74), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 64, 70, 74), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 63, 67, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 63, 65, 67, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 64, 68, 70), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 64, 66), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 62, 64, 66), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 62, 64, 70), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+                new Example(List.of(60, 62, 64, 68), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 3),
+
+                // new Example(List.of(60, 66, 70), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 66, 4), // HIER!
+                new Example(List.of(60, 63, 66, 68), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 68, 4),
+                new Example(List.of(60, 63, 65, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 65, 4),
+                new Example(List.of(60, 62, 66, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 62, 4),
+                new Example(List.of(60, 62, 65, 68), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 65, 4),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                new Example(List.of(60, 66, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 66, 13)
+        );
+    }
+
+    @Test
+    @DisplayName("User-extendable examples: validate group (and optionally root/degree)")
+    void analyze_userExtendableExamples() {
+        ChordAnalysisHindemith ca = new ChordAnalysisHindemith();
+        for (Example example : userExamples()) {
+            var res = ca.analyze(example.notes());
+            assertEquals(example.column(), res.column, "Group mismatch for " + example.notes());
+            if (example.expectedRoot() != null) {
+                assertTrue(res.rootNote.isPresent(), "Expected root present for " + example.notes());
+                assertEquals(example.expectedRoot().intValue(), res.rootNote.get().intValue(), "Root mismatch for " + example.notes());
+            }
+            if (example.expectedGroup() != null) {
+                assertTrue(res.group.isPresent(), "Expected degree present for " + example.notes());
+                assertEquals(example.expectedGroup().intValue(), res.group.get().intValue(), "Degree mismatch for " + example.notes());
+            }
+        }
+    }
+
+    // Kleines DTO für die Beispiele
+    private record Example(List<Integer> notes,
+                           ChordAnalysisHindemith.Column column,
+                           Integer expectedRoot,
+                           Integer expectedGroup) {}
+}
