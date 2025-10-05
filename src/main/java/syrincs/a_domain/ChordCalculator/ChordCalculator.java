@@ -20,7 +20,7 @@ public class ChordCalculator {
         dissDegreeConstraints.put(1, new Constraint(Set.of(1, 2, 6, 10, 11), null,  null, "!=", false, false, false)); // A) I. 2.
         dissDegreeConstraints.put(2, new Constraint(Set.of(1, 2, 11), Set.of(6, 10),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. a
         dissDegreeConstraints.put(3, new Constraint(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. b 1.
-        dissDegreeConstraints.put(4, new Constraint(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), "!=", false, false, false)); // B) II. b 2.
+        dissDegreeConstraints.put(4, new Constraint(Set.of(1, 11), Set.of(6),  Set.of(7,5,4,8,3,9), "!=", false, false, false, java.util.List.of(java.util.Set.of(2,10)))); // B) II. b 2.
         dissDegreeConstraints.put(5, new Constraint(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), null, true, false, false)); // B) II. b 3.
         dissDegreeConstraints.put(6, new Constraint(Set.of(1,6,11),  null, Set.of(2,10), "==", false, false, false)); // A) III. 1.1 (vgl. S. 127)
         dissDegreeConstraints.put(7, new Constraint(Set.of(1,6,11),  null, Set.of(2,10), "!=", false, false, false)); // A) III. 2.1 (vgl. S. 127)
@@ -313,6 +313,19 @@ public class ChordCalculator {
         return includeSet == null || differences.containsAll(includeSet);
     }
 
+    private boolean includesAllWithAlternatives(List<Interval> intervals, List<Set<Integer>> groups) {
+        if (groups == null || groups.isEmpty()) return true;
+        java.util.Set<Integer> diffs = intervals.stream()
+                .map(i -> i.getDifferenceWithoutOctavations())
+                .collect(java.util.stream.Collectors.toSet());
+        for (java.util.Set<Integer> group : groups) {
+            if (group == null || group.isEmpty()) continue; // leere Gruppen ignorieren
+            boolean any = group.stream().anyMatch(diffs::contains);
+            if (!any) return false;
+        }
+        return true;
+    }
+
     private boolean hatMehrereTritoni(List<Interval> intervals, boolean constraintValue){
         //List<Interval> tritoni = intervals.stream().filter(i -> i.getDifferenceWithoutOctavations() == 6).collect(Collectors.toList());
         return constraintValue == false || intervals.stream().filter(i -> i.getDifferenceWithoutOctavations() == 6).count() >= 2;
@@ -330,6 +343,7 @@ public class ChordCalculator {
                 dimOrDim7(rootIntervals, constraint.getDimOrDim7()) &&
                 includesAtLeastOneOf(allIntervals, constraint.getIncludeAtLeastOneOf()) &&
                 includesAll(allIntervals, constraint.getIncludeAll()) &&
+                includesAllWithAlternatives(allIntervals, constraint.getIncludeAllWithAlternatives()) &&
                 hatMehrereTritoni(chord.calculateAllIntervalsOfPitchClasses(), constraint.getMehrereTritoni());
     }
 

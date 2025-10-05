@@ -92,6 +92,7 @@ public class ChordAnalysisHindemith {
                 && dimOrDim7(rootIntervals, c.getDimOrDim7())
                 && includesAtLeastOneOf(allIntervals, c.getIncludeAtLeastOneOf())
                 && includesAll(allIntervals, c.getIncludeAll())
+                && includesAllWithAlternatives(allIntervals, c.getIncludeAllWithAlternatives())
                 && hasMehrereTritoniOnPitchClasses(chord, c.getMehrereTritoni())
                 && rootNoteEqualsBassNote(bassNote, chord.getRootNote(), c.getRootNoteEqual());
     }
@@ -124,6 +125,19 @@ public class ChordAnalysisHindemith {
     private boolean includesAll(List<Interval> intervals, Set<Integer> includeAll) {
         List<Integer> diffs = intervals.stream().map(i -> i.getDifferenceWithoutOctavations()).toList();
         return includeAll == null || diffs.containsAll(includeAll);
+    }
+
+    private boolean includesAllWithAlternatives(List<Interval> intervals, List<Set<Integer>> groups) {
+        if (groups == null || groups.isEmpty()) return true;
+        java.util.Set<Integer> diffs = intervals.stream()
+                .map(i -> i.getDifferenceWithoutOctavations())
+                .collect(java.util.stream.Collectors.toSet());
+        for (java.util.Set<Integer> group : groups) {
+            if (group == null || group.isEmpty()) continue; // leere Gruppen ignorieren
+            boolean any = group.stream().anyMatch(diffs::contains);
+            if (!any) return false;
+        }
+        return true;
     }
 
     private boolean hasMehrereTritoniOnPitchClasses(Chord chord, boolean mustHaveMultiple) {
