@@ -1,66 +1,123 @@
 package syrincs.a_domain.ChordCalculator;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class ChordSpecification {
-    private final Set<Integer> excludeAll;
-    private final Set<Integer> includeAll;
-    private final Set<Integer> includeAtLeastOneOf; // Hindemith schreibt "Mit großer Sekunde UND kleiner Septime", er meint aber "oder".
-    private final String rootNoteEqual;
+/**
+ * ChordSpecification – immutable rule definition for Hindemith chord groups.
+ * Provides a single Builder-based construction API and keeps legacy getter names
+ * for backward compatibility with existing code paths.
+ */
+public final class ChordSpecification {
+
+    // Domain enums
+    public enum ColumnRequirement { ANY, TRITONE_FREE, WITH_TRITONE }
+    public enum RootRelation { ANY, EQUALS_BASS, NOT_EQUALS_BASS }
+
+    // Domain flags
+    private final ColumnRequirement columnRequirement;
+    private final RootRelation rootRelation;
+    private final boolean tritoneSubordinated;
     private final boolean mehrereTritoni;
     private final boolean layersOfMajor3OrPerfect4;
     private final boolean dimOrDim7;
-    // NEU: UND-verknüpfte ODER-Gruppen
-    private final List<Set<Integer>> includeAllWithAlternatives;
 
-    // Alter Konstruktor bleibt zur Rückwärtskompatibilität bestehen
-    public ChordSpecification(Set<Integer> excludeAll, Set<Integer> includeAll, Set<Integer> includeAtLeastOneOf, String rootNoteEqual, boolean mehrereTritoni, boolean layersOfMajor3OrPerfect4, boolean dimOrDim7) {
-        this(excludeAll, includeAll, includeAtLeastOneOf, rootNoteEqual, mehrereTritoni, layersOfMajor3OrPerfect4, dimOrDim7, java.util.List.of());
+    // Interval conditions
+    private final Set<Integer> excludeIntervals;
+    private final Set<Integer> requireIntervals;
+    private final Set<Integer> requireAnyIntervals; // ODER-Menge
+    // UND-verknüpfte ODER-Gruppen
+    private final List<Set<Integer>> requireAllWithAlternatives;
+
+    // Optional metadata
+    private final Integer groupNumber; // 1..14
+    private final String label;
+
+    private ChordSpecification(Builder b) {
+        this.columnRequirement = b.columnRequirement;
+        this.rootRelation = b.rootRelation;
+        this.tritoneSubordinated = b.tritoneSubordinated;
+        this.mehrereTritoni = b.mehrereTritoni;
+        this.layersOfMajor3OrPerfect4 = b.layersOfMajor3OrPerfect4;
+        this.dimOrDim7 = b.dimOrDim7;
+        this.excludeIntervals = unmodifiableOrEmpty(b.excludeIntervals);
+        this.requireIntervals = unmodifiableOrEmpty(b.requireIntervals);
+        this.requireAnyIntervals = unmodifiableOrEmpty(b.requireAnyIntervals);
+        this.requireAllWithAlternatives = (b.requireAllWithAlternatives == null) ? List.of()
+                : b.requireAllWithAlternatives.stream().map(Set::copyOf).toList();
+        this.groupNumber = b.groupNumber;
+        this.label = b.label;
     }
 
-    // Neuer Voll-Konstruktor
-    public ChordSpecification(Set<Integer> excludeAll, Set<Integer> includeAll, Set<Integer> includeAtLeastOneOf, String rootNoteEqual, boolean mehrereTritoni, boolean layersOfMajor3OrPerfect4, boolean dimOrDim7, List<Set<Integer>> includeAllWithAlternatives) {
-        this.excludeAll = excludeAll;
-        this.includeAll = includeAll;
-        this.includeAtLeastOneOf = includeAtLeastOneOf;
-        this.rootNoteEqual = rootNoteEqual;
-        this.mehrereTritoni = mehrereTritoni;
-        this.layersOfMajor3OrPerfect4 = layersOfMajor3OrPerfect4;
-        this.dimOrDim7 = dimOrDim7;
-        this.includeAllWithAlternatives = includeAllWithAlternatives == null ? java.util.List.of() : java.util.List.copyOf(includeAllWithAlternatives);
-    }
+    private static <T> Set<T> unmodifiableOrEmpty(Set<T> s) { return (s == null) ? Set.of() : Set.copyOf(s); }
 
-    public Set<Integer> getExcludeAll() {
-        return excludeAll;
-    }
+    // --- New API getters ---
+    public ColumnRequirement getColumnRequirement() { return columnRequirement; }
+    public RootRelation getRootRelationEnum() { return rootRelation; }
+    public boolean isTritoneSubordinated() { return tritoneSubordinated; }
+    public boolean isMehrereTritoni() { return mehrereTritoni; }
+    public boolean isLayersOfMajor3OrPerfect4() { return layersOfMajor3OrPerfect4; }
+    public boolean isDimOrDim7() { return dimOrDim7; }
+    public Set<Integer> getExcludeIntervals() { return excludeIntervals; }
+    public Set<Integer> getRequireIntervals() { return requireIntervals; }
+    public Set<Integer> getRequireAnyIntervals() { return requireAnyIntervals; }
+    public List<Set<Integer>> getRequireAllWithAlternatives() { return requireAllWithAlternatives; }
+    public Optional<Integer> getGroupNumber() { return Optional.ofNullable(groupNumber); }
+    public Optional<String> getLabel() { return Optional.ofNullable(label); }
 
-    public Set<Integer> getIncludeAll() {
-        return includeAll;
-    }
-
-    public Set<Integer> getIncludeAtLeastOneOf() {
-        return includeAtLeastOneOf;
-    }
-
+    // --- Legacy compatibility getters (used by existing code) ---
+    public Set<Integer> getExcludeAll() { return getExcludeIntervals(); }
+    public Set<Integer> getIncludeAll() { return getRequireIntervals(); }
+    public Set<Integer> getIncludeAtLeastOneOf() { return getRequireAnyIntervals(); }
     public String getRootNoteEqual() {
-        return rootNoteEqual;
+        return switch (rootRelation) {
+            case EQUALS_BASS -> "==";
+            case NOT_EQUALS_BASS -> "!=";
+            default -> null;
+        };
     }
+    public boolean getMehrereTritoni() { return isMehrereTritoni(); }
+    public boolean getLayersOfMajor3OrPerfect4() { return isLayersOfMajor3OrPerfect4(); }
+    public boolean getDimOrDim7() { return isDimOrDim7(); }
+    public List<Set<Integer>> getIncludeAllWithAlternatives() { return getRequireAllWithAlternatives(); }
 
-    public boolean getMehrereTritoni() {
-        return mehrereTritoni;
-    }
+    // --- Builder: single construction API ---
+    public static Builder builder() { return new Builder(); }
+    public static final class Builder {
+        private ColumnRequirement columnRequirement = ColumnRequirement.ANY;
+        private RootRelation rootRelation = RootRelation.ANY;
+        private boolean tritoneSubordinated = false;
+        private boolean mehrereTritoni = false;
+        private boolean layersOfMajor3OrPerfect4 = false;
+        private boolean dimOrDim7 = false;
+        private Set<Integer> excludeIntervals;
+        private Set<Integer> requireIntervals;
+        private Set<Integer> requireAnyIntervals;
+        private List<Set<Integer>> requireAllWithAlternatives;
+        private Integer groupNumber;
+        private String label;
 
-    public boolean getLayersOfMajor3OrPerfect4() {
-        return layersOfMajor3OrPerfect4;
-    }
+        public Builder column(ColumnRequirement c) { this.columnRequirement = c; return this; }
+        public Builder rootRelation(RootRelation r) { this.rootRelation = r; return this; }
+        public Builder requireTritoneSubordinated(boolean b) { this.tritoneSubordinated = b; return this; }
+        public Builder requireMultipleTritones(boolean b) { this.mehrereTritoni = b; return this; }
+        public Builder layeringM3orP4(boolean b) { this.layersOfMajor3OrPerfect4 = b; return this; }
+        public Builder dimOrDim7(boolean b) { this.dimOrDim7 = b; return this; }
 
-    public boolean getDimOrDim7() {
-        return dimOrDim7;
-    }
+        public Builder excludeIntervals(Set<Integer> s) { this.excludeIntervals = s; return this; }
+        public Builder excludeIntervals(Integer... s) { this.excludeIntervals = toSet(s); return this; }
+        public Builder requireIntervals(Set<Integer> s) { this.requireIntervals = s; return this; }
+        public Builder requireIntervals(Integer... s) { this.requireIntervals = toSet(s); return this; }
+        public Builder requireAnyIntervals(Set<Integer> s) { this.requireAnyIntervals = s; return this; }
+        public Builder requireAnyIntervals(Integer... s) { this.requireAnyIntervals = toSet(s); return this; }
+        public Builder requireAllWithAlternatives(List<Set<Integer>> groups) { this.requireAllWithAlternatives = groups; return this; }
+        public Builder requireAllWithAlternatives(Set<Integer>... groups) { this.requireAllWithAlternatives = List.of(groups); return this; }
 
-    public List<Set<Integer>> getIncludeAllWithAlternatives() {
-        return includeAllWithAlternatives;
+        public Builder groupNumber(int n) { this.groupNumber = n; return this; }
+        public Builder label(String s) { this.label = s; return this; }
+
+        public ChordSpecification build() { return new ChordSpecification(this); }
+
+        private static Set<Integer> toSet(Integer... ints) { return (ints == null) ? Set.of() : Set.of(ints); }
     }
 }
 

@@ -15,26 +15,105 @@ public class ChordCalculator {
 
 
     public ChordCalculator() {
+        // Define original 0..13 rules using the new Builder API for internal compatibility.
+        dissDegreeConstraints.put(0, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 2, 6, 10, 11))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // A) I. 1.
 
-        dissDegreeConstraints.put(0, new ChordSpecification(Set.of(1, 2, 6, 10, 11), null,  null, "==", false, false, false)); // A) I. 1.
-        dissDegreeConstraints.put(1, new ChordSpecification(Set.of(1, 2, 6, 10, 11), null,  null, "!=", false, false, false)); // A) I. 2.
-        dissDegreeConstraints.put(2, new ChordSpecification(Set.of(1, 2, 11), Set.of(6, 10),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. a
-        dissDegreeConstraints.put(3, new ChordSpecification(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), "==", false, false, false)); // B) II. b 1.
-        dissDegreeConstraints.put(4, new ChordSpecification(Set.of(1, 11), Set.of(6),  Set.of(7,5,4,8,3,9), "!=", false, false, false, java.util.List.of(java.util.Set.of(2,10)))); // B) II. b 2.
-        dissDegreeConstraints.put(5, new ChordSpecification(Set.of(1, 11), Set.of(2,6),  Set.of(7,5,4,8,3,9), null, true, false, false)); // B) II. b 3.
-        dissDegreeConstraints.put(6, new ChordSpecification(Set.of(1,6,11),  null, Set.of(2,10), "==", false, false, false)); // A) III. 1.1 (vgl. S. 127)
-        dissDegreeConstraints.put(7, new ChordSpecification(Set.of(1,6,11),  null, Set.of(2,10), "!=", false, false, false)); // A) III. 2.1 (vgl. S. 127)
-        dissDegreeConstraints.put(8, new ChordSpecification(Set.of(6),  null, Set.of(1,11), "==", false, false, false)); // A) III. 1.2 (vgl. S. 127)
-        dissDegreeConstraints.put(9, new ChordSpecification(Set.of(6),  null, Set.of(1,11), "!=", false, false, false)); // A) III. 2.2 (vgl. S. 127)
-        dissDegreeConstraints.put(10, new ChordSpecification(null, Set.of(6), Set.of(1, 11),  "==", false, false, false)); // B) IV. 1.
-        dissDegreeConstraints.put(11, new ChordSpecification(null, Set.of(6), Set.of(1, 11),  "!=", false, false, false)); // B) IV. 2.
-        dissDegreeConstraints.put(12, new ChordSpecification(null, null,  null, null, false, true, false)); // A) V.
-        dissDegreeConstraints.put(13, new ChordSpecification(null, Set.of(6),  null, null, false, false, true)); // B) VI.
+        dissDegreeConstraints.put(1, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 2, 6, 10, 11))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // A) I. 2.
+
+        dissDegreeConstraints.put(2, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 2, 11))
+                .requireIntervals(Set.of(6, 10))
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // B) II. a
+
+        dissDegreeConstraints.put(3, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 11))
+                .requireIntervals(Set.of(2,6))
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // B) II. b 1.
+
+        dissDegreeConstraints.put(4, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 11))
+                .requireIntervals(6)
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .requireAllWithAlternatives(Set.of(2,10))
+                .build()); // B) II. b 2. (6 AND (2 OR 10))
+
+        dissDegreeConstraints.put(5, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1, 11))
+                .requireIntervals(Set.of(2,6))
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
+                .requireMultipleTritones(true)
+                .build()); // B) II. b 3.
+
+        dissDegreeConstraints.put(6, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1,6,11))
+                .requireAnyIntervals(Set.of(2,10))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // A) III. 1.1 (vgl. S. 127) mit gr. 2 und kl. 7 ist für Hi. wertvoller. als kl 2 & gr. 7
+
+        dissDegreeConstraints.put(7, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1,6,11))
+                .requireAnyIntervals(Set.of(2,10))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // A) III. 2.1 (vgl. S. 127)
+
+        dissDegreeConstraints.put(8, ChordSpecification.builder()
+                .excludeIntervals(Set.of(6))
+                .requireAnyIntervals(Set.of(1,11))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // A) III. 1.2 (vgl. S. 127) mit gr. 2 und kl. 7 ist für Hi. wertvoller. als kl 2 & gr. 7
+
+        dissDegreeConstraints.put(9, ChordSpecification.builder()
+                .excludeIntervals(Set.of(6))
+                .requireAnyIntervals(Set.of(1,11))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // A) III. 2.2 (vgl. S. 127)
+
+        dissDegreeConstraints.put(10, ChordSpecification.builder()
+                .requireIntervals(Set.of(6))
+                .requireAnyIntervals(Set.of(1, 11))
+                .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .build()); // B) IV. 1.
+
+        dissDegreeConstraints.put(11, ChordSpecification.builder()
+                .requireIntervals(Set.of(6))
+                .requireAnyIntervals(Set.of(1, 11))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // B) IV. 2.
+
+        dissDegreeConstraints.put(12, ChordSpecification.builder()
+                .layeringM3orP4(true)
+                .build()); // A) V.
+
+        dissDegreeConstraints.put(13, ChordSpecification.builder()
+                .requireIntervals(Set.of(6))
+                .dimOrDim7(true)
+                .build()); // B) VI.
     }
 
 
     public Map<Integer, ChordSpecification> getDissDegreeConstraints() {
         return dissDegreeConstraints;
+    }
+
+    /** New: group specifications 1..14 (mapping from legacy 0..13 by +1). */
+    public Map<Integer, ChordSpecification> getGroupSpecifications() {
+        Map<Integer, ChordSpecification> map = new LinkedHashMap<>();
+        for (int i = 0; i <= 13; i++) {
+            ChordSpecification cs = dissDegreeConstraints.get(i);
+            if (cs != null) map.put(i + 1, cs);
+        }
+        return map;
     }
 
 
@@ -48,11 +127,10 @@ public class ChordCalculator {
                 for (int n2 = n1 + 1; n2 <= maxUpperNote; n2++) {
                     List<Integer> notes = Arrays.asList(n0, n1, n2);
                     Chord chord = new Chord(notes);
-                    if ( !(checkIntervals(chord, chordSpecification) &&
-                                    isInScale(n2, scale) &&
-                                    threeNotesAreDifferentFromEachOther(notes) &&
-                                    rootNoteEqualsBassNote(n0, chord.getRootNote(), chordSpecification.getRootNoteEqual())
-                            )) continue;
+                    if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord, n0, chordSpecification)
+                            && isInScale(n2, scale)
+                            && threeNotesAreDifferentFromEachOther(notes)
+                    )) continue;
                     chords.add(chord);
                 }
             }
@@ -77,10 +155,9 @@ public class ChordCalculator {
                     for (int n3 = n2 + 1; n3 <= maxUpperNote; n3++) {
                         List<Integer> notes3 = Arrays.asList(n0, n1, n2, n3);
                         Chord chord3 = new Chord(notes3);
-                        if (!(checkIntervals(chord3, chordSpecification) &&
-                                isInScale(n3, scale) &&
-                                threeNotesAreDifferentFromEachOther(notes3) &&
-                                rootNoteEqualsBassNote(n0, chord3.getRootNote(), chordSpecification.getRootNoteEqual())
+                        if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord3, n0, chordSpecification)
+                                && isInScale(n3, scale)
+                                && threeNotesAreDifferentFromEachOther(notes3)
                         )) continue;
                         chords.add(chord3);
                     }
@@ -112,10 +189,9 @@ public class ChordCalculator {
                     for (int n4 = n3 + 1; n4 <= maxUpperNote; n4++) {
                             List<Integer> notes4 = Arrays.asList(n0, n1, n2, n3, n4);
                             Chord chord4 = new Chord(notes4);
-                            if (!(checkIntervals(chord4, chordSpecification) &&
-                                    isInScale(n4, scale) &&
-                                    threeNotesAreDifferentFromEachOther(notes4) &&
-                                    rootNoteEqualsBassNote(n0, chord4.getRootNote(), chordSpecification.getRootNoteEqual())
+                            if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord4, n0, chordSpecification)
+                                    && isInScale(n4, scale)
+                                    && threeNotesAreDifferentFromEachOther(notes4)
                             )) continue;
                             chords.add(chord4);
                         }
@@ -153,10 +229,9 @@ public class ChordCalculator {
                             for (int n5 = n4 + 1; n5 <= maxUpperNote; n5++) {
                                 List<Integer> notes5 = Arrays.asList(n0, n1, n2, n3, n4, n5);
                                 Chord chord5 = new Chord(notes5);
-                                if (!(checkIntervals(chord5, chordSpecification) &&
-                                        isInScale(n5, scale) &&
-                                        threeNotesAreDifferentFromEachOther(notes5) &&
-                                        rootNoteEqualsBassNote(n0, chord5.getRootNote(), chordSpecification.getRootNoteEqual())
+                                if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord5, n0, chordSpecification)
+                                        && isInScale(n5, scale)
+                                        && threeNotesAreDifferentFromEachOther(notes5)
                                 )) continue;
                                 chords.add(chord5);
                             }
@@ -199,10 +274,9 @@ public class ChordCalculator {
                                 for (int n6 = n5 + 1; n6 <= maxUpperNote; n6++) {
                                     List<Integer> notes6 = Arrays.asList(n0, n1, n2, n3, n4, n5, n6);
                                     Chord chord6 = new Chord(notes6);
-                                    if (!(checkIntervals(chord6, chordSpecification) &&
-                                            isInScale(n6, scale) &&
-                                            threeNotesAreDifferentFromEachOther(notes6) &&
-                                            rootNoteEqualsBassNote(n0, chord6.getRootNote(), chordSpecification.getRootNoteEqual())
+                                    if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord6, n0, chordSpecification)
+                                            && isInScale(n6, scale)
+                                            && threeNotesAreDifferentFromEachOther(notes6)
                                     )) continue;
                                     chords.add(chord6);
                                 }
@@ -252,10 +326,9 @@ public class ChordCalculator {
                                     for (int n7 = n6 + 1; n7 <= maxUpperNote; n7++) {
                                         List<Integer> notes7 = Arrays.asList(n0, n1, n2, n3, n4, n5, n6, n7);
                                         Chord chord7 = new Chord(notes7);
-                                        if (!(checkIntervals(chord7, chordSpecification) &&
-                                                isInScale(n7, scale) &&
-                                                threeNotesAreDifferentFromEachOther(notes7) &&
-                                                rootNoteEqualsBassNote(n0, chord7.getRootNote(), chordSpecification.getRootNoteEqual())
+                                        if (!(syrincs.a_domain.hindemith.ChordRules.matches(chord7, n0, chordSpecification)
+                                                && isInScale(n7, scale)
+                                                && threeNotesAreDifferentFromEachOther(notes7)
                                         )) continue;
                                         chords.add(chord7);
                                     }
@@ -303,9 +376,11 @@ public class ChordCalculator {
     }
 
     private boolean includesAtLeastOneOf(List<Interval> intervals, Set includeSet){
+        if (includeSet == null || (includeSet instanceof java.util.Collection && ((java.util.Collection<?>) includeSet).isEmpty())) {
+            return true;
+        }
         Set<Integer> differencesWithoutOctavations = intervals.stream().map(i->i.getDifferenceWithoutOctavations()).collect(Collectors.toSet());
-        //differencesWithoutOctavations.retainAll(includeSet);
-        return includeSet == null || includeSet.stream().anyMatch(n-> differencesWithoutOctavations.contains(n));
+        return includeSet.stream().anyMatch(n-> differencesWithoutOctavations.contains(n));
     }
 
     private boolean includesAll(List<Interval> intervals, Set includeSet){
@@ -332,19 +407,8 @@ public class ChordCalculator {
     }
 
     private boolean checkIntervals(Chord chord, ChordSpecification chordSpecification) {
-        List<Interval> allIntervals = chord.getAllIntervals();
-        List<Interval> rootIntervals = chord.getRootIntervals();
-        //List<Integer> notes = chord.getNotes();
-
-
-
-        return  intervalsNotInSet(allIntervals, chordSpecification.getExcludeAll()) &&
-                layersOfMajor3rdOrPerfect4th(rootIntervals, chordSpecification.getLayersOfMajor3OrPerfect4()) &&
-                dimOrDim7(rootIntervals, chordSpecification.getDimOrDim7()) &&
-                includesAtLeastOneOf(allIntervals, chordSpecification.getIncludeAtLeastOneOf()) &&
-                includesAll(allIntervals, chordSpecification.getIncludeAll()) &&
-                includesAllWithAlternatives(allIntervals, chordSpecification.getIncludeAllWithAlternatives()) &&
-                hatMehrereTritoni(chord.calculateAllIntervalsOfPitchClasses(), chordSpecification.getMehrereTritoni());
+        // Delegate interval-rule evaluation to shared utility to avoid duplication
+        return syrincs.a_domain.hindemith.ChordRules.matchesIntervalsOnly(chord, chordSpecification);
     }
 
     private boolean tritonusIstUntergeordnet(List<Interval> intervals){

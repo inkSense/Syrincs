@@ -17,7 +17,7 @@ public class ChordAnalysisHindemith {
     public static final class Result {
         public final Column column;
         public final Optional<Integer> rootNote; // MIDI
-        public final Optional<Integer> group; // 0..13
+        public final Optional<Integer> group; // 1..14
         public final int frameInterval;
         public final List<Integer> notes; // sorted copy
 
@@ -72,84 +72,30 @@ public class ChordAnalysisHindemith {
 
     private Optional<Integer> classifyChordGroup(Chord chord, int bassNote) {
         ChordCalculator calc = new ChordCalculator();
-        Map<Integer, ChordSpecification> constraints = calc.getDissDegreeConstraints();
-        for (int dg = 0; dg <= 13; dg++) {
-            ChordSpecification c = constraints.get(dg);
-            if (c == null) continue;
-            if (passesConstraint(chord, c, bassNote)) {
-                return Optional.of(dg);
+        Map<Integer, ChordSpecification> groupSpecs = calc.getGroupSpecifications(); // 1..14
+
+        // Prioritize more specific rules: those explicitly requiring multiple tritones
+        List<Integer> withMultiTritonesFirst = new ArrayList<>();
+        List<Integer> others = new ArrayList<>();
+        for (int g = 1; g <= 14; g++) {
+            ChordSpecification spec = groupSpecs.get(g);
+            if (spec == null) continue;
+            if (spec.getMehrereTritoni()) {
+                withMultiTritonesFirst.add(g);
+            } else {
+                others.add(g);
+            }
+        }
+        List<Integer> order = new ArrayList<>(withMultiTritonesFirst);
+        order.addAll(others);
+
+        for (Integer g : order) {
+            ChordSpecification spec = groupSpecs.get(g);
+            if (spec == null) continue;
+            if (ChordRules.matches(chord, bassNote, spec)) {
+                return Optional.of(g);
             }
         }
         return Optional.empty();
-    }
-
-    // Re-Implementierung der Prüf-Logik, angelehnt an ChordCalculator.checkIntervals(...)
-    private boolean passesConstraint(Chord chord, ChordSpecification c, int bassNote) {
-        List<Interval> allIntervals = chord.getAllIntervals();
-        List<Interval> rootIntervals = chord.getRootIntervals();
-        return intervalsNotInSet(allIntervals, c.getExcludeAll())
-                && layersOfMajor3rdOrPerfect4th(rootIntervals, c.getLayersOfMajor3OrPerfect4())
-                && dimOrDim7(rootIntervals, c.getDimOrDim7())
-                && includesAtLeastOneOf(allIntervals, c.getIncludeAtLeastOneOf())
-                && includesAll(allIntervals, c.getIncludeAll())
-                && includesAllWithAlternatives(allIntervals, c.getIncludeAllWithAlternatives())
-                && hasMehrereTritoniOnPitchClasses(chord, c.getMehrereTritoni())
-                && rootNoteEqualsBassNote(bassNote, chord.getRootNote(), c.getRootNoteEqual());
-    }
-
-    private boolean intervalsNotInSet(List<Interval> intervals, Set<Integer> exclude) {
-        List<Integer> differences = intervals.stream().map(i -> i.getDifferenceWithoutOctavations()).collect(Collectors.toList());
-        return exclude == null || Collections.disjoint(differences, exclude);
-    }
-
-    // Achtung: Entspricht der Operator-Priorität des Originals (constraintValue == cond1) || cond2
-    private boolean layersOfMajor3rdOrPerfect4th(List<Interval> intervals, boolean constraintValue) {
-        Set<Integer> mod4 = intervals.stream().map(n -> n.getDifferenceWithoutOctavations() % 4).collect(Collectors.toSet());
-        Set<Integer> mod5 = intervals.stream().map(n -> n.getRealDifference() % 5).collect(Collectors.toSet());
-        boolean cond1 = (mod4.size() == 1 && mod4.contains(0));
-        boolean cond2 = (mod5.size() == 1 && mod5.contains(0));
-        return (constraintValue == cond1) || cond2;
-    }
-
-    private boolean dimOrDim7(List<Interval> intervals, boolean constraintValue) {
-        Set<Integer> mod3 = intervals.stream().map(n -> n.getRealDifference() % 3).collect(Collectors.toSet());
-        boolean isDimFamily = (mod3.size() == 1 && mod3.contains(0));
-        return constraintValue == isDimFamily;
-    }
-
-    private boolean includesAtLeastOneOf(List<Interval> intervals, Set<Integer> includeAny) {
-        Set<Integer> diffs = intervals.stream().map(i -> i.getDifferenceWithoutOctavations()).collect(Collectors.toSet());
-        return includeAny == null || includeAny.stream().anyMatch(diffs::contains);
-    }
-
-    private boolean includesAll(List<Interval> intervals, Set<Integer> includeAll) {
-        List<Integer> diffs = intervals.stream().map(i -> i.getDifferenceWithoutOctavations()).toList();
-        return includeAll == null || diffs.containsAll(includeAll);
-    }
-
-    private boolean includesAllWithAlternatives(List<Interval> intervals, List<Set<Integer>> groups) {
-        if (groups == null || groups.isEmpty()) return true;
-        java.util.Set<Integer> diffs = intervals.stream()
-                .map(i -> i.getDifferenceWithoutOctavations())
-                .collect(java.util.stream.Collectors.toSet());
-        for (java.util.Set<Integer> group : groups) {
-            if (group == null || group.isEmpty()) continue; // leere Gruppen ignorieren
-            boolean any = group.stream().anyMatch(diffs::contains);
-            if (!any) return false;
-        }
-        return true;
-    }
-
-    private boolean hasMehrereTritoniOnPitchClasses(Chord chord, boolean mustHaveMultiple) {
-        if (!mustHaveMultiple) return true;
-        List<Interval> pitchClassIntervals = chord.calculateAllIntervalsOfPitchClasses();
-        long tritones = pitchClassIntervals.stream().filter(i -> i.getDifferenceWithoutOctavations() == 6).count();
-        return tritones >= 2;
-    }
-
-    private boolean rootNoteEqualsBassNote(int bass, Integer root, String condition) {
-        if (condition == null) return true;
-        if (root == null) return false;
-        return "==".equals(condition) ? (bass == root) : (bass != root);
     }
 }
