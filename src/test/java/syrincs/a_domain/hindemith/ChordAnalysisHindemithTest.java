@@ -135,11 +135,23 @@ class ChordAnalysisHindemithTest {
                 new Example(List.of(60, 64, 66, 67, 74), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
                 new Example(List.of(60, 66, 67, 73, 74, 80), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
 
-
-
+                new Example(List.of(60, 65, 66, 69, 75), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 65, 12),
+                new Example(List.of(60, 64, 65, 70, 73), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 65, 12),
+                new Example(List.of(60, 62, 66, 69, 73, 76), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 62, 12),
+                new Example(List.of(60, 61, 66, 69, 77), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 66, 12),
                 new Example(List.of(60, 64, 71, 77), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 64, 12),
+                new Example(List.of(60, 64, 66, 71), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 64, 12),
+                new Example(List.of(60, 64, 70, 75), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 75, 12),
 
-                //Todo: 12 - 14
+                new Example(List.of(60, 64, 68), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 60, 13),
+                new Example(List.of(60, 65, 70), ChordAnalysisHindemith.Column.A_TRITONE_FREE, 65, 13),
+
+                //Todo: 14
+                //new Example(List.of(60, 63, 66), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 14),
+                //new Example(List.of(60, 63, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 14),
+                //new Example(List.of(60, 66, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 14),
+                //new Example(List.of(60, 63, 66, 69), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 14),
+
 
 
 
