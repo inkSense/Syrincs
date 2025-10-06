@@ -132,11 +132,14 @@ class ChordAnalysisHindemithTest {
                 new Example(List.of(60, 64, 70, 73), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
                 new Example(List.of(60, 66, 67, 73), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
                 new Example(List.of(60, 67, 68, 74), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
+                new Example(List.of(60, 64, 66, 67, 74), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
+                new Example(List.of(60, 66, 67, 73, 74, 80), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 60, 11),
 
 
 
-                new Example(List.of(60, 64, 71, 77), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 64, 11),
-                //Todo: 11 - 14
+                new Example(List.of(60, 64, 71, 77), ChordAnalysisHindemith.Column.B_WITH_TRITONE, 64, 12),
+
+                //Todo: 12 - 14
 
 
 
