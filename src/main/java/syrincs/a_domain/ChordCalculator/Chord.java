@@ -93,13 +93,12 @@ public class Chord {
             return null;
         }
         if (bestInterval.size() == 1) {
-            return bestInterval.get(0).getRootNote();
+            return bestInterval.getFirst().getRootNote();
         }
 
-        boolean chooseLowest = bestInterval.get(0).getDifferenceWithoutOctavations() != 5; // ToDo: Warum noch mal?
-        return chooseLowest
-                ? bestInterval.stream().mapToInt(Interval::getRootNote).min().orElse(bestInterval.get(0).getRootNote())
-                : bestInterval.stream().mapToInt(Interval::getRootNote).max().orElse(bestInterval.get(0).getRootNote());
+        // Immer das unterste nehmen. Vgl. Unterweisung im Tonsatz S. 120
+        return bestInterval.stream().mapToInt(Interval::getRootNote).min().orElse(bestInterval.getFirst().getRootNote());
+
     }
 
     private List<Interval> calculateBestInterval(List<Interval> intervals){

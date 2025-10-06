@@ -11,7 +11,7 @@ public class LoadHindemithChordFileUseCase {
     Hindemith hindemith = new Hindemith();
 
     public void load(){
-        hindemith.loadAllChordsFromFile(52, 68);
+        hindemith.loadAllChordsFromFile(54, 66);
     }
 
     public List<Chord> getSomeChords(){
