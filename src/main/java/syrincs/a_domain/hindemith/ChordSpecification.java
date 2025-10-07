@@ -1,4 +1,4 @@
-package syrincs.a_domain.ChordCalculator;
+package syrincs.a_domain.hindemith;
 
 import java.util.*;
 
@@ -31,6 +31,7 @@ public final class ChordSpecification {
     // Optional metadata
     private final Integer groupNumber; // 1..14
     private final String label;
+
 
     private ChordSpecification(Builder b) {
         this.columnRequirement = b.columnRequirement;

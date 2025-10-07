@@ -1,8 +1,8 @@
 package syrincs.b_application;
 
-import syrincs.a_domain.ChordCalculator.Chord;
+import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.a_domain.Tone;
-import syrincs.a_domain.hindemith.ChordAnalysisHindemith;
+import syrincs.a_domain.hindemith.ChordAnalysis;
 import syrincs.b_application.ports.MidiOutputPort;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -32,19 +32,19 @@ public class UseCaseInteractor {
         midiOutput.sendToneToDevice(tone, deviceNameSubstring);
     }
 
-    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        midiOutput.sendChordToDevice(chord, deviceNameSubstring);
+    public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        midiOutput.sendChordToDevice(hindemithChord, deviceNameSubstring);
     }
 
     public void loadHindemithChordFile() {
         loadHindemithChordFileUseCase.load();
     }
 
-    public List<Chord> getSomeHindemithChords() {
+    public List<HindemithChord> getSomeHindemithChords() {
         return loadHindemithChordFileUseCase.getSomeChords();
     }
 
-    public ChordAnalysisHindemith.Result analyzeChordByHindemith(List<Integer> midiNotes) {
+    public ChordAnalysis.Result analyzeChordByHindemith(List<Integer> midiNotes) {
         return analyseChordByHindemithUseCase.analyze(midiNotes);
     }
 }

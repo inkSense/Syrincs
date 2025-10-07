@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
 
-import syrincs.a_domain.ChordCalculator.Chord;
+import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.c_adapters.JdkMidiOutputAdapter;
 
 import javax.sound.midi.MidiDevice;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SendMidiChordUseCaseConnectionTest {
+class SendMidiHindemithChordUseCaseConnectionTest {
 
     private UseCaseInteractor interactor;
 
@@ -39,9 +39,9 @@ class SendMidiChordUseCaseConnectionTest {
         System.out.println("[MIDI] Found target output: " + deviceName + " -> attempting to send a chord");
 
         // C major triad within safe MIDI range
-        Chord chord = new Chord(List.of(64, 67, 72));
+        HindemithChord hindemithChord = new HindemithChord(List.of(64, 67, 72));
 
-        assertDoesNotThrow(() -> interactor.sendChordToDevice(chord, deviceName),
+        assertDoesNotThrow(() -> interactor.sendChordToDevice(hindemithChord, deviceName),
                 "Sending chord to device should not throw");
     }
 }

@@ -1,6 +1,6 @@
 package syrincs.b_application;
 
-import syrincs.a_domain.hindemith.ChordAnalysisHindemith;
+import syrincs.a_domain.hindemith.ChordAnalysis;
 
 import java.util.List;
 
@@ -11,13 +11,13 @@ import java.util.List;
  */
 public class AnalyseChordByHindemithUseCase {
 
-    private final ChordAnalysisHindemith analyzer = new ChordAnalysisHindemith();
+    private final ChordAnalysis analyzer = new ChordAnalysis();
 
     /**
      * Analyze a chord given as a list of MIDI notes (can be unsorted).
      * Returns the domain result (column A/B, optional root, optional group 1..14, frame interval, sorted notes).
      */
-    public ChordAnalysisHindemith.Result analyze(List<Integer> midiNotes) {
+    public ChordAnalysis.Result analyze(List<Integer> midiNotes) {
         return analyzer.analyze(midiNotes);
     }
 }

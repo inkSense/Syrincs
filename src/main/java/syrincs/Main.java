@@ -2,7 +2,7 @@
 package syrincs;
 
 import syrincs.a_domain.Tone;
-import syrincs.a_domain.ChordCalculator.Chord;
+import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.b_application.UseCaseInteractor;
 import syrincs.c_adapters.JdkMidiOutputAdapter;
 import java.util.Arrays;
@@ -29,16 +29,16 @@ public class Main {
                 if (args.length >= 2 && "chords".equalsIgnoreCase(args[1])) {
                     System.out.println("[MIDI] Loading Hindemith chords...");
                     interactor.loadHindemithChordFile();
-                    List<Chord> chords = interactor.getSomeHindemithChords();
-                    if (chords == null || chords.isEmpty()) {
+                    List<HindemithChord> hindemithChords = interactor.getSomeHindemithChords();
+                    if (hindemithChords == null || hindemithChords.isEmpty()) {
                         System.out.println("[MIDI] No chords available after loading.");
                         return;
                     }
                     long intervalMs = 1000L; // start-to-start interval
-                    for (Chord chord : chords) {
+                    for (HindemithChord hindemithChord : hindemithChords) {
                         long start = System.currentTimeMillis();
-                        System.out.println("[MIDI] Playing chord: " + chord);
-                        interactor.sendChordToDevice(chord, null); // auto-select device
+                        System.out.println("[MIDI] Playing chord: " + hindemithChord);
+                        interactor.sendChordToDevice(hindemithChord, null); // auto-select device
                         long elapsed = System.currentTimeMillis() - start;
                         long sleep = intervalMs - elapsed;
                         if (sleep > 0) Thread.sleep(sleep);

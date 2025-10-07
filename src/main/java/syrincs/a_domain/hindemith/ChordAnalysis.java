@@ -1,14 +1,8 @@
 package syrincs.a_domain.hindemith;
 
-import syrincs.a_domain.ChordCalculator.Chord;
-import syrincs.a_domain.ChordCalculator.ChordCalculator;
-import syrincs.a_domain.ChordCalculator.ChordSpecification;
-import syrincs.a_domain.Interval;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class ChordAnalysisHindemith {
+public class ChordAnalysis {
     // Algorithmus zur Bestimmung eines Akkordes:
     // "Die Bestandaufnahme der Klänge scheidet darum das gesamte Akkordmaterial zunächst in zwei Hauptgruppen: In der Gruppe A sind alle tritonusfreien Klänge. Den Akkorden mit Tritonus wird die Gruppe B zugewiesen." S.119
 
@@ -51,10 +45,10 @@ public class ChordAnalysisHindemith {
 
         Column column = hasTritoneInPitchClasses(notes) ? Column.B_WITH_TRITONE : Column.A_TRITONE_FREE;
 
-        Chord chord = new Chord(notes);
-        Optional<Integer> root = Optional.ofNullable(chord.getRootNote());
+        HindemithChord hindemithChord = new HindemithChord(notes);
+        Optional<Integer> root = Optional.ofNullable(hindemithChord.getRootNote());
 
-        Optional<Integer> group = classifyChordGroup(chord, notes.get(0));
+        Optional<Integer> group = classifyChordGroup(hindemithChord, notes.get(0));
 
         return new Result(column, root, group, frame, notes);
     }
@@ -70,9 +64,9 @@ public class ChordAnalysisHindemith {
         return false;
     }
 
-    private Optional<Integer> classifyChordGroup(Chord chord, int bassNote) {
-        ChordCalculator calc = new ChordCalculator();
-        Map<Integer, ChordSpecification> groupSpecs = calc.getGroupSpecifications(); // 1..14
+    private Optional<Integer> classifyChordGroup(HindemithChord hindemithChord, int bassNote) {
+        var specs = new ChordSpecificationRepository();
+        Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications(); // 1..14
 
         // Prioritize more specific rules:
         // 1) multiple tritones
@@ -106,7 +100,7 @@ public class ChordAnalysisHindemith {
         for (Integer g : order) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
-            if (ChordRules.matches(chord, bassNote, spec)) {
+            if (ChordRules.matches(hindemithChord, bassNote, spec)) {
                 return Optional.of(g);
             }
         }

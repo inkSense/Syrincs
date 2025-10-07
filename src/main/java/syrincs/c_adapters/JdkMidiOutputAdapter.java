@@ -1,6 +1,6 @@
 package syrincs.c_adapters;
 
-import syrincs.a_domain.ChordCalculator.Chord;
+import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.a_domain.Tone;
 import syrincs.b_application.ports.MidiOutputPort;
 
@@ -60,8 +60,8 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
     }
 
     @Override
-    public void sendChordToDevice(Chord chord, String deviceNameSubstring) {
-        if (chord == null) return;
+    public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring) {
+        if (hindemithChord == null) return;
         try {
             MidiDevice.Info info = (deviceNameSubstring != null && !deviceNameSubstring.isEmpty())
                     ? findOutputByName(deviceNameSubstring)
@@ -81,7 +81,7 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
                 if (!device.isOpen()) { device.open(); openedHere = true; }
                 Receiver receiver = device.getReceiver();
                 try {
-                    sendChordViaReceiver(receiver, chord, 0);
+                    sendChordViaReceiver(receiver, hindemithChord, 0);
                 } finally {
                     try { receiver.close(); } catch (Exception ignored) {}
                 }
@@ -95,12 +95,12 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
         }
     }
 
-    private void sendChordViaReceiver(Receiver receiver, Chord chord, int channel) throws InvalidMidiDataException, InterruptedException {
+    private void sendChordViaReceiver(Receiver receiver, HindemithChord hindemithChord, int channel) throws InvalidMidiDataException, InterruptedException {
         if (receiver == null) throw new IllegalArgumentException("receiver must not be null");
-        if (chord == null) throw new IllegalArgumentException("chord must not be null");
+        if (hindemithChord == null) throw new IllegalArgumentException("chord must not be null");
         if (channel < 0 || channel > 15) throw new IllegalArgumentException("channel must be between 0 and 15");
 
-        List<Integer> notes = chord.getNotes();
+        List<Integer> notes = hindemithChord.getNotes();
         if (notes == null || notes.isEmpty()) return;
 
         int velocity = 32; // default soft
