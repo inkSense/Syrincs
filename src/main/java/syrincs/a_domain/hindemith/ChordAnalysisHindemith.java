@@ -74,19 +74,33 @@ public class ChordAnalysisHindemith {
         ChordCalculator calc = new ChordCalculator();
         Map<Integer, ChordSpecification> groupSpecs = calc.getGroupSpecifications(); // 1..14
 
-        // Prioritize more specific rules: those explicitly requiring multiple tritones
-        List<Integer> withMultiTritonesFirst = new ArrayList<>();
+        // Prioritize more specific rules:
+        // 1) multiple tritones
+        // 2) dim/dim7 (group 14)
+        // 3) layering of M3 or P4 (group 13)
+        // 4) all remaining in natural order
+        List<Integer> multiTritones = new ArrayList<>();
+        List<Integer> dimOrDim7 = new ArrayList<>();
+        List<Integer> layering = new ArrayList<>();
         List<Integer> others = new ArrayList<>();
+
         for (int g = 1; g <= 14; g++) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
             if (spec.getMehrereTritoni()) {
-                withMultiTritonesFirst.add(g);
+                multiTritones.add(g);
+            } else if (spec.getDimOrDim7()) {
+                dimOrDim7.add(g);
+            } else if (spec.getLayersOfMajor3OrPerfect4()) {
+                layering.add(g);
             } else {
                 others.add(g);
             }
         }
-        List<Integer> order = new ArrayList<>(withMultiTritonesFirst);
+        List<Integer> order = new ArrayList<>();
+        order.addAll(multiTritones);
+        order.addAll(dimOrDim7);
+        order.addAll(layering);
         order.addAll(others);
 
         for (Integer g : order) {
