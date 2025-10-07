@@ -9,14 +9,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class NoteCombinator {
 
-    private List<List<Integer>> allChords = new ArrayList<>();
+    private final List<List<Integer>> allChords = new ArrayList<>();
 
     public List<List<Integer>> getAllChords() {return allChords;}
+
+    private static final Logger LOGGER = Logger.getLogger(NoteCombinator.class.getName());
 
     public List<List<Integer>> generateChords(int k, int minLowerNote, int maxUpperNote) {
         if (k <= 0) return List.of();
@@ -54,9 +57,9 @@ public class NoteCombinator {
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(allChords, writer);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE,e.getMessage());
         }
-        System.out.println("File saved.");
+        LOGGER.info("File saved.");
     }
 
     private void print(List<List<Integer>> chords) {

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ChordSpecificationRepository {
-    private Map<Integer, ChordSpecification> chordGroupSpecifications = new HashMap<>();
+    private final  Map<Integer, ChordSpecification> chordGroupSpecifications = new HashMap<>();
 
     public ChordSpecificationRepository() {
         fillChordGroupSpecifications();

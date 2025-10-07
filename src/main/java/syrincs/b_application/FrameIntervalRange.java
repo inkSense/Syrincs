@@ -8,7 +8,7 @@ public enum FrameIntervalRange {
     INTERVALS_20_TO_24, //bis zwei Oktaven
     INTERVALS_FROM_25;
 
-    private static FrameIntervalRange[] array = FrameIntervalRange.values();
+    private static final FrameIntervalRange[] array = FrameIntervalRange.values();
 
     public static FrameIntervalRange getFrameIntervalRange(int i){
         return array[i];

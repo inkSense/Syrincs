@@ -1,6 +1,5 @@
 package syrincs.a_domain;
 
-import java.util.List;
 
 public class Interval {
 

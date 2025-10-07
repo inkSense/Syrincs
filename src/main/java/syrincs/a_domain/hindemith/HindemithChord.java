@@ -7,7 +7,7 @@ import java.util.*;
 public class HindemithChord extends Chord {
 
     private Integer rootNote = null;
-    private List<HindemithInterval> rootHindemithIntervals; //intervals from rootNote to remaining notes
+    private final List<HindemithInterval> rootHindemithIntervals; //intervals from rootNote to remaining notes
     private int group;
 
     public HindemithChord(List<Integer> notes) {
@@ -57,10 +57,10 @@ public class HindemithChord extends Chord {
                 continue;
             }
 
-            if ( bestHindemithInterval.get(0).getQuality() > hindemithInterval.getQuality() && hindemithInterval.getQuality() != -1 ) {
+            if ( bestHindemithInterval.getFirst().getQuality() > hindemithInterval.getQuality() && hindemithInterval.getQuality() != -1 ) {
                 bestHindemithInterval.clear();
                 bestHindemithInterval.add(hindemithInterval);
-            } else if (bestHindemithInterval.get(0).getQuality() == hindemithInterval.getQuality()) {
+            } else if (bestHindemithInterval.getFirst().getQuality() == hindemithInterval.getQuality()) {
                 bestHindemithInterval.add(hindemithInterval);
             }
         }
@@ -72,7 +72,7 @@ public class HindemithChord extends Chord {
         List<Integer> notesList = new ArrayList<>(notes);
         List<HindemithInterval> result = new ArrayList<>();
         for (int gap = 1; gap < notesList.size(); gap++) {
-            HindemithInterval hindemithInterval = new HindemithInterval(notesList.get(0), notesList.get(gap));
+            HindemithInterval hindemithInterval = new HindemithInterval(notesList.getFirst(), notesList.get(gap));
             result.add(hindemithInterval);
         }
         return result;

@@ -5,7 +5,7 @@ import syrincs.a_domain.Interval;
 import java.util.List;
 
 public class CounterpointInterval extends Interval {
-    private enum Harmonie  {KONSONANT, DISSONANT};
+    private enum Harmonie  {KONSONANT, DISSONANT}
     private final Harmonie harmonie;
     private final List<Integer> konsonantIntervals = List.of(0,3,4,7,8); //Ohne Quarte
 

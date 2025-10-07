@@ -4,7 +4,6 @@ import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.a_domain.chord.NoteCombinator;
 
 import java.util.*;
-import java.util.List;
 
 public class ChordCalculatorUseCase {
 

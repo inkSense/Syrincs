@@ -44,6 +44,10 @@ public class Chord {
         return associatedScales;
     }
 
+    public void setAssociatedScales(List<String> associatedScales) {
+        this.associatedScales = associatedScales;
+    }
+
     public List<HindemithInterval> getAllIntervals() {
         return allHindemithIntervals;
     }

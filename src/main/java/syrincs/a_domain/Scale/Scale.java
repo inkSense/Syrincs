@@ -84,15 +84,11 @@ public class Scale {
             throw new IllegalArgumentException("lowerOctave ist größer als upperOctave.");
         }
 
-        octLoop: for(int octave = lowerOctave; lowerOctave <= upperOctave; octave++){
+        for(int octave = lowerOctave; octave <= upperOctave; octave++){
             List<Integer> notes = getScaleWithinOctaveStartingFromTonic(octave);
             for(Integer note : notes){
                 if( midiA0 <= note  && note <= midiC8 ){
                     stock.add(note);
-                } else {
-                    if(note > midiC8){
-                        break octLoop;
-                    }
                 }
             }
         }

@@ -3,7 +3,7 @@ package syrincs.a_domain.Scale;
 import java.util.*;
 
 public class ScaleRepository {
-    private List<Scale> scales = new ArrayList<>();
+    private final List<Scale> scales = new ArrayList<>();
     public ScaleRepository() {
         scales.add(new Scale(Set.of(0, 2, 4, 5, 7, 9, 11), "cIonic", 0));
         scales.add(new Scale(Set.of(0, 2, 4, 6, 7, 9, 11), "gIonic", 7));
