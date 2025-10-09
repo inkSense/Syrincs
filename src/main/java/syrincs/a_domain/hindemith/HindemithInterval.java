@@ -2,7 +2,10 @@ package syrincs.a_domain.hindemith;
 
 import syrincs.a_domain.Interval;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HindemithInterval extends Interval {
 
@@ -27,6 +30,8 @@ public class HindemithInterval extends Interval {
     public int getRootNote(){
         return rootNote;
     }
+
+
 
 }
 

@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.Math.abs;
+
 
 public class NoteCombinator {
 
@@ -33,11 +35,17 @@ public class NoteCombinator {
         return out;
     }
 
+    private boolean hasLessThanThreeOctaves (int lowerNote, int upperNote){
+        int semitones = 12 * 3;
+        return abs(upperNote - lowerNote) < semitones;
+    }
+
     private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc) {
         int k = buf.length;
         if (index == k) {  // buf ist vollständig
             List<Integer> chord = new ArrayList<>(k);
             for (int v : buf) chord.add(v); //copy to chord
+
             out.add(chord);
             return;
         }
@@ -50,20 +58,6 @@ public class NoteCombinator {
             backtrack(buf, index + 1, start + 1, max, out, usedPc);
             usedPc[pc] = false;
         }
-    }
-
-    public void saveAllChordsToFile(int minLowerNote, int maxUpperNote) {
-        Path path = Paths.get(System.getProperty("user.dir"),
-                "/data/minLowerNote" + minLowerNote + "_maxUpperNote" + maxUpperNote + ".json");
-        String filePath = path.toString();
-        System.out.println("save to file: " + filePath);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(allChords, writer);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage());
-        }
-        LOGGER.info("File saved.");
     }
 
     private void print(List<List<Integer>> chords) {

@@ -1,20 +1,42 @@
 package syrincs.a_domain.hindemith;
 
+import syrincs.a_domain.Interval;
 import syrincs.a_domain.chord.Chord;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HindemithChord extends Chord {
 
-    private Integer rootNote = null;
+    private final List<HindemithInterval> intervals;
+    private final Integer rootNote;
+    private final Integer rootNotePitchClass;
+
     private final List<HindemithInterval> rootHindemithIntervals; //intervals from rootNote to remaining notes
     private Integer group; // 1..14, or null if unknown
 
     public HindemithChord(List<Integer> notes) {
         super(notes);
-        this.rootNote = calculateRootNote(getAllIntervals());
+        this.intervals = mapIntervals(getAllIntervals());
         this.rootHindemithIntervals = calculateRootIntervals();
+        this.rootNote = calculateRootNote(this.intervals);
+        this.rootNotePitchClass = this.rootNote % 12;
         this.group = null;
+    }
+
+    public HindemithChord(List<Integer> notes, Integer rootNote, Integer group) {
+        super(notes);
+        this.intervals = mapIntervals(getAllIntervals());
+        this.rootHindemithIntervals = calculateRootIntervals();
+        this.rootNote = rootNote;
+        this.rootNotePitchClass = this.rootNote % 12;
+        this.group = group;
+    }
+
+    private List<HindemithInterval> mapIntervals(List<Interval> from){
+        return from.stream()
+                .map(i -> new HindemithInterval(i.getLowNote(), i.getHighNote()))
+                .collect(Collectors.toList());
     }
 
     public Integer getRootNote() {
@@ -34,14 +56,14 @@ public class HindemithChord extends Chord {
     }
     private List<HindemithInterval> calculateRootIntervals(){
         // Provided that Intervals ar in the right order:
-        return getAllIntervals().subList(0, getNotes().size() - 1);
+        return intervals.subList(0, getNotes().size() - 1);
     }
 
     private Integer calculateRootNote(List<HindemithInterval> hindemithIntervals){
         List<HindemithInterval> bestHindemithInterval = calculateBestInterval(hindemithIntervals);
 
         if (bestHindemithInterval.isEmpty()) {
-            return null;
+            throw new IllegalArgumentException("No best hindemith interval found");
         }
         if (bestHindemithInterval.size() == 1) {
             return bestHindemithInterval.getFirst().getRootNote();
@@ -83,6 +105,20 @@ public class HindemithChord extends Chord {
         return result;
     }
 
+
+    public List<HindemithInterval> calculateAllIntervalsOfPitchClasses(){
+        List<HindemithInterval> hindemithIntervalList = new ArrayList<>();
+        Set<Integer> pitchClassesSet = getNotes().stream().map(n-> n%12).collect(Collectors.toSet());
+        List<Integer> pitchClasses = pitchClassesSet.stream().toList();
+
+        for (int i = 0; i < pitchClasses.size(); i++) {
+            for (int gap = 1; i + gap < pitchClasses.size(); gap++) {
+                HindemithInterval hindemithInterval = new HindemithInterval(pitchClasses.get(i), pitchClasses.get(i+gap));
+                hindemithIntervalList.add(hindemithInterval);
+            }
+        }
+        return hindemithIntervalList;
+    }
 
 
 }

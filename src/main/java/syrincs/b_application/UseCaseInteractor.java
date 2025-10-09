@@ -60,13 +60,12 @@ public class UseCaseInteractor {
     }
 
     public void loadHindemithChordsWithRootNote(Integer rootNote){
-        // rootNote = rootNote % 12;  // Todo: Entscheidung bz
         hindemithChords = getHindemithChordsFromDbUseCase.getAllOf(rootNote);
     }
 
     public List<HindemithChord> getSomeHindemithChords() {
         System.out.println("[MIDI] Loading Hindemith chords...");
-        loadHindemithChords(4);
+        loadHindemithChords(5);
         return hindemithChords;
     }
 
