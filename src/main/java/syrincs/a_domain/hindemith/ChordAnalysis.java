@@ -104,6 +104,6 @@ public class ChordAnalysis {
                 return Optional.of(g);
             }
         }
-        return Optional.empty();
+        throw new IllegalStateException("Chord group has no matching groups");
     }
 }

@@ -47,11 +47,11 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
                     chordGroup  INT
                 )
                 """;
-        try (Connection con = getConnection(); Statement st = con.createStatement()) {
-            st.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to ensure table exists", e);
-        }
+        withSqlVoid("Failed to ensure table exists", () -> {
+            try (Connection con = getConnection(); Statement st = con.createStatement()) {
+                st.execute(sql);
+            }
+        });
     }
 
     @Override
@@ -64,145 +64,155 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
         Integer root = chord.getRootNote();
         Integer group = chord.getGroup();
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        return withSql("Failed to save HindemithChord", () -> {
+            try (Connection con = getConnection();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
 
-            Array arr = con.createArrayOf("int4", notes.stream().map(Integer::valueOf).toArray(Integer[]::new));
-            ps.setArray(1, arr);
-            ps.setInt(2, numNotes);
-            ps.setInt(3, min);
-            ps.setInt(4, max);
-            if (root == null) ps.setNull(5, Types.INTEGER); else ps.setInt(5, root);
-            if (group == null) ps.setNull(6, Types.INTEGER); else ps.setInt(6, group);
+                Array arr = con.createArrayOf("int4", notes.stream().map(Integer::valueOf).toArray(Integer[]::new));
+                ps.setArray(1, arr);
+                ps.setInt(2, numNotes);
+                ps.setInt(3, min);
+                ps.setInt(4, max);
+                setNullableInt(ps, 5, root);
+                setNullableInt(ps, 6, group);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getLong(1);
+                    }
+                    throw new SQLException("INSERT did not return id");
                 }
-                throw new SQLException("INSERT did not return id");
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to save HindemithChord", e);
-        }
+        });
     }
 
     @Override
     public Optional<HindemithChord> findById(long id) {
         String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords WHERE id = ?";
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return Optional.empty();
-                Array arr = rs.getArray("notes");
-                Integer[] noteArray = (Integer[]) arr.getArray();
-                List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
-                int r = rs.getInt("rootNote");
-                int g = rs.getInt("chordGroup");
-                HindemithChord chord = new HindemithChord(notes, r, g);
-                return Optional.of(chord);
+        return withSql("Failed to load HindemithChord by id", () -> {
+            try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setLong(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return Optional.empty();
+                    return Optional.of(mapRow(rs));
+                }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load HindemithChord by id", e);
-        }
+        });
     }
 
     @Override
     public List<HindemithChord> findAll() {
         String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords ORDER BY id";
-        List<HindemithChord> result = new ArrayList<>();
-        try (Connection con = getConnection(); Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                Array arr = rs.getArray("notes");
-                Integer[] noteArray = (Integer[]) arr.getArray();
-                List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
-                int r = rs.getInt("rootNote");
-                int g = rs.getInt("chordGroup");
-                HindemithChord chord = new HindemithChord(notes, r, g);
-                result.add(chord);
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load all HindemithChords", e);
-        }
+        return withSql("Failed to load all HindemithChords", () -> trySql(sql));
     }
 
     @Override
     public List<HindemithChord> getAllOf(Integer group) {
         String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords WHERE chordGroup = ? ORDER BY id";
-        List<HindemithChord> result = new ArrayList<>();
-        try (Connection con = getConnection()) {
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, group);
-                tryPreparedStatement(result, ps);
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load HindemithChords for group=" + group, e);
-        }
+        return withSql("Failed to load HindemithChords for group=" + group, () -> trySql(sql, group));
     }
 
     @Override
     public List<HindemithChord> getAllOfRootNote(Integer rootNote){
         String sqlEq = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? ORDER BY id";
-        List<HindemithChord> result = new ArrayList<>();
-        try (Connection con = getConnection()) {
-            try (PreparedStatement ps = con.prepareStatement(sqlEq)) {
-                ps.setInt(1, rootNote);
-                tryPreparedStatement(result, ps);
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load HindemithChords for rootNote=" + rootNote, e);
-        }
+        return withSql("Failed to load HindemithChords for rootNote=" + rootNote, () -> trySql(sqlEq, rootNote));
     }
 
     public List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group){
         String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? AND chordGroup = ? ORDER BY id";
-        return getHindemithChords(rootNote, group, sql);
-    }
-
-    private List<HindemithChord> getHindemithChords(Integer rootNote, Integer group, String sql) {
-        List<HindemithChord> result = new ArrayList<>();
-        try (Connection con = getConnection()) {
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, rootNote);
-                ps.setInt(2, group);
-                tryPreparedStatement(result, ps);
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load HindemithChords for rootNote=" + rootNote, e);
-        }
+        return withSql("Failed to load HindemithChords for rootNote=" + rootNote, () -> trySql(sql, rootNote, group));
     }
 
     public List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer group){
         String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? AND chordGroup <= ? ORDER BY id";
-        return getHindemithChords(rootNote, group, sql);
+        return withSql("Failed to load HindemithChords for rootNote=" + rootNote, () -> trySql(sql, rootNote, group));
     }
 
-    private void tryPreparedStatement(List<HindemithChord> result, PreparedStatement ps) throws SQLException {
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Array arr = rs.getArray("notes");
-                Integer[] noteArray = (Integer[]) arr.getArray();
-                List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
-                int r = rs.getInt("rootNote");
-                int g = rs.getInt("chordGroup");
-
-                HindemithChord chord = new HindemithChord(notes, r, g);
-                result.add(chord);
-            }
-        }
-    }
 
     @Override
     public void deleteById(long id) {
         String sql = "DELETE FROM public.hindemithChords WHERE id = ?";
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, id);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete HindemithChord by id", e);
+        withSqlVoid("Failed to delete HindemithChord by id", () -> {
+            try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setLong(1, id);
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    private HindemithChord mapRow(ResultSet rs) throws SQLException {
+        Array arr = rs.getArray("notes");
+        Integer[] noteArray = (Integer[]) arr.getArray();
+        List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
+        int r = rs.getInt("rootNote");
+        int g = rs.getInt("chordGroup");
+        return new HindemithChord(notes, r, g);
+    }
+
+    private static void setNullableInt(PreparedStatement ps, int index, Integer value) throws SQLException {
+        if (value == null) {
+            ps.setNull(index, Types.INTEGER);
+        } else {
+            ps.setInt(index, value);
         }
+    }
+
+    // SQL exception encapsulation helpers
+    @FunctionalInterface
+    private interface SqlCallable<T> {
+        T call() throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface SqlRunnable {
+        void run() throws SQLException;
+    }
+
+    private <T> T withSql(String errMsg, SqlCallable<T> action) {
+        try {
+            return action.call();
+        } catch (SQLException e) {
+            throw new RuntimeException(errMsg, e);
+        }
+    }
+
+    private void withSqlVoid(String errMsg, SqlRunnable action) {
+        try {
+            action.run();
+        } catch (SQLException e) {
+            throw new RuntimeException(errMsg, e);
+        }
+    }
+
+    // Overloaded SQL helpers: execute a query and map rows to HindemithChord
+    private List<HindemithChord> trySql(String sql) throws SQLException {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            return executeQuery(ps);
+        }
+    }
+
+    private List<HindemithChord> trySql(String sql, Integer p1) throws SQLException {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            setNullableInt(ps, 1, p1);
+            return executeQuery(ps);
+        }
+    }
+
+    private List<HindemithChord> trySql(String sql, Integer p1, Integer p2) throws SQLException {
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            setNullableInt(ps, 1, p1);
+            setNullableInt(ps, 2, p2);
+            return executeQuery(ps);
+        }
+    }
+
+    private List<HindemithChord> executeQuery(PreparedStatement ps) throws SQLException {
+        List<HindemithChord> result = new ArrayList<>();
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                result.add(mapRow(rs));
+            }
+        }
+        return result;
     }
 }
