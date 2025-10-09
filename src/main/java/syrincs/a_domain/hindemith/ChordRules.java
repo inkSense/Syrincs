@@ -29,7 +29,7 @@ public final class ChordRules {
      * Matches only the interval-related parts of a specification (no root/bass comparison).
      */
     public static boolean matchesIntervalsOnly(HindemithChord hindemithChord, ChordSpecification spec) {
-        List<HindemithInterval> allHindemithIntervals = hindemithChord.getAllIntervals();
+        List<HindemithInterval> allHindemithIntervals = hindemithChord.getAllHindemithIntervals();
         List<HindemithInterval> rootHindemithIntervals = hindemithChord.getRootIntervals();
         List<HindemithInterval> pcHindemithIntervals = hindemithChord.calculateAllIntervalsOfPitchClasses();
 

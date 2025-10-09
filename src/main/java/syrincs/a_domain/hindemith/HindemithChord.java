@@ -105,6 +105,10 @@ public class HindemithChord extends Chord {
         return result;
     }
 
+    List<HindemithInterval> getAllHindemithIntervals(){
+        return this.intervals;
+    }
+
 
     public List<HindemithInterval> calculateAllIntervalsOfPitchClasses(){
         List<HindemithInterval> hindemithIntervalList = new ArrayList<>();

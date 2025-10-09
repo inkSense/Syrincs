@@ -31,31 +31,51 @@ public class NoteCombinator {
 
         List<List<Integer>> out = new ArrayList<>();
         int[] buf = new int[k];
-        backtrack(buf, 0, minLowerNote, maxUpperNote, out, new boolean[12]);
+        backtrack(buf, 0, minLowerNote, maxUpperNote, out, new boolean[12], 3);
         return out;
     }
 
-    private boolean hasLessThanThreeOctaves (int lowerNote, int upperNote){
-        int semitones = 12 * 3;
-        return abs(upperNote - lowerNote) < semitones;
-    }
-
-    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc) {
+    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc, int octaves) {
         int k = buf.length;
-        if (index == k) {  // buf ist vollständig
+        if (index == k) {
             List<Integer> chord = new ArrayList<>(k);
-            for (int v : buf) chord.add(v); //copy to chord
-
+            for (int v : buf) chord.add(v);
             out.add(chord);
             return;
         }
-        // Rekursiver Fall
-        for (int start = min; start <= max - (k - index - 1); start++) {
+
+        int remaining = k - index - 1;
+
+        if (index == 0) {
+            // Grundlegende Kombinations-Grenze (ohne Spannweitenkappung):
+            int lastStart = max - remaining;
+            for (int start = min; start <= lastStart; start++) {
+                int pc = Math.floorMod(start, 12);
+                if (usedPc[pc]) continue;
+                usedPc[pc] = true;
+                buf[index] = start;
+
+                // Kappen jetzt relativ zur tatsächlich gewählten tiefsten Note (start)
+                int spanCapMax = Math.min(max, start + (octaves * 12 - 1));
+                backtrack(buf, index + 1, start + 1, spanCapMax, out, usedPc, octaves);
+                usedPc[pc] = false;
+            }
+            return;
+        }
+
+        // index > 0: tiefste Note ist bereits gewählt in buf[0]
+        int lowest = buf[0];
+        int spanCapMax = Math.min(max, lowest + (octaves * 12 - 1));
+
+        int lastStart = spanCapMax - remaining;
+        if (lastStart < min) return;
+
+        for (int start = min; start <= lastStart; start++) {
             int pc = Math.floorMod(start, 12);
-            if (usedPc[pc]) continue; // Pitch Class schon verwendet -> überspringen
+            if (usedPc[pc]) continue;
             usedPc[pc] = true;
             buf[index] = start;
-            backtrack(buf, index + 1, start + 1, max, out, usedPc);
+            backtrack(buf, index + 1, start + 1, spanCapMax, out, usedPc, octaves);
             usedPc[pc] = false;
         }
     }
