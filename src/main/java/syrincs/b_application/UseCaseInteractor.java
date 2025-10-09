@@ -9,6 +9,7 @@ import syrincs.b_application.ports.MidiOutputPort;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,9 +65,18 @@ public class UseCaseInteractor {
     }
 
     public List<HindemithChord> getSomeHindemithChords() {
-        System.out.println("[MIDI] Loading Hindemith chords...");
-        loadHindemithChords(5);
+        loadHindemithChordsWithGroups(60, List.of(1,2,7,8));
+        System.out.println(hindemithChords.size() + " chords loaded.");
+        Collections.shuffle(hindemithChords);
         return hindemithChords;
+    }
+
+    public void loadHindemithChordsWithMaxGroup(Integer rootNote, Integer maxGroup ){
+        hindemithChords = getHindemithChordsFromDbUseCase.getAllOfRootNoteAndMaxGroup(rootNote, maxGroup);
+    }
+
+    public void loadHindemithChordsWithGroups(Integer rootNote, List<Integer> groups ){
+        hindemithChords = getHindemithChordsFromDbUseCase.loadHindemithChordsWithGroups(rootNote, groups);
     }
 
     public ChordAnalysis.Result analyzeChordByHindemith(List<Integer> midiNotes) {

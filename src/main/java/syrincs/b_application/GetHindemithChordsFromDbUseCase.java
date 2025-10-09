@@ -42,6 +42,24 @@ public class GetHindemithChordsFromDbUseCase {
         return repository.getAllOfRootNote(rootNote);
     }
 
+    public List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group){
+        return repository.getAllOfRootNoteAndGroup(rootNote, group);
+    }
+
+    public List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer maxGroup){
+        return repository.getAllOfRootNoteAndMaxGroup(rootNote, maxGroup);
+    }
+
+    public List<HindemithChord> loadHindemithChordsWithGroups(Integer rootNote, List<Integer> groups){
+        List<HindemithChord> hindemithChords = new ArrayList<>();
+        for(Integer group : groups){
+            repository.getAllOfRootNoteAndGroup(rootNote, group).forEach(hindemithChords::add);
+        }
+        return hindemithChords;
+    }
+
+
+
     /**
      * Loads a single chord by its id.
      */

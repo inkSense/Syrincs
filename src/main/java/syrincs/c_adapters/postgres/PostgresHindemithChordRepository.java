@@ -129,23 +129,11 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
     @Override
     public List<HindemithChord> getAllOf(Integer group) {
         String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords WHERE chordGroup = ? ORDER BY id";
-
         List<HindemithChord> result = new ArrayList<>();
         try (Connection con = getConnection()) {
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, group);
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        Array arr = rs.getArray("notes");
-                        Integer[] noteArray = (Integer[]) arr.getArray();
-                        List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
-                        int r = rs.getInt("rootNote");
-                        int g = rs.getInt("chordGroup");
-
-                        HindemithChord chord = new HindemithChord(notes, r, g);
-                        result.add(chord);
-                    }
-                }
+                tryPreparedStatement(result, ps);
             }
             return result;
         } catch (SQLException e) {
@@ -160,22 +148,50 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
         try (Connection con = getConnection()) {
             try (PreparedStatement ps = con.prepareStatement(sqlEq)) {
                 ps.setInt(1, rootNote);
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        Array arr = rs.getArray("notes");
-                        Integer[] noteArray = (Integer[]) arr.getArray();
-                        List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
-                        int r = rs.getInt("rootNote");
-                        int g = rs.getInt("chordGroup");
-
-                        HindemithChord chord = new HindemithChord(notes, r, g);
-                        result.add(chord);
-                    }
-                }
+                tryPreparedStatement(result, ps);
             }
             return result;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load HindemithChords for rootNote=" + rootNote, e);
+        }
+    }
+
+    public List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group){
+        String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? AND chordGroup = ? ORDER BY id";
+        return getHindemithChords(rootNote, group, sql);
+    }
+
+    private List<HindemithChord> getHindemithChords(Integer rootNote, Integer group, String sql) {
+        List<HindemithChord> result = new ArrayList<>();
+        try (Connection con = getConnection()) {
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, rootNote);
+                ps.setInt(2, group);
+                tryPreparedStatement(result, ps);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load HindemithChords for rootNote=" + rootNote, e);
+        }
+    }
+
+    public List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer group){
+        String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? AND chordGroup <= ? ORDER BY id";
+        return getHindemithChords(rootNote, group, sql);
+    }
+
+    private void tryPreparedStatement(List<HindemithChord> result, PreparedStatement ps) throws SQLException {
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Array arr = rs.getArray("notes");
+                Integer[] noteArray = (Integer[]) arr.getArray();
+                List<Integer> notes = new ArrayList<>(Arrays.asList(noteArray));
+                int r = rs.getInt("rootNote");
+                int g = rs.getInt("chordGroup");
+
+                HindemithChord chord = new HindemithChord(notes, r, g);
+                result.add(chord);
+            }
         }
     }
 

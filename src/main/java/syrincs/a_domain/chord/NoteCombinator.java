@@ -1,18 +1,9 @@
 package syrincs.a_domain.chord;
 
 import java.util.*;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.lang.Math.abs;
 
 
 public class NoteCombinator {
@@ -66,8 +57,8 @@ public class NoteCombinator {
 
     private static boolean withinOctaves(List<Integer> chord, int octaves) {
         if (chord.isEmpty()) return true;
-        int lowest = chord.get(0);
-        int highest = chord.get(chord.size() - 1);
+        int lowest = chord.getFirst();
+        int highest = chord.getLast();
         return (highest - lowest) < (octaves * 12);
     }
 

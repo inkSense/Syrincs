@@ -37,4 +37,9 @@ public interface HindemithChordRepositoryPort {
     List<HindemithChord> getAllOf(Integer group);
 
     List<HindemithChord> getAllOfRootNote(Integer rootNote);
+
+    List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group);
+
+    List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer maxGroup);
+
 }
