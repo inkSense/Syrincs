@@ -5,14 +5,32 @@ import syrincs.a_domain.Tone;
 import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.b_application.UseCaseInteractor;
 import syrincs.c_adapters.JdkMidiOutputAdapter;
+import syrincs.c_adapters.postgres.PostgresHindemithChordRepository;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class Main {
-    private static final UseCaseInteractor interactor = new UseCaseInteractor(new JdkMidiOutputAdapter());
-    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords";
+    private static UseCaseInteractor interactor;
+    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords | calculate <minLowerNote> <maxUpperNote>";
 
     public static void main(String[] args) throws Exception {
+        // Bootstrap interactor with MIDI and (optional) DB repository
+        var midiAdapter = new JdkMidiOutputAdapter();
+
+        String url = System.getenv().getOrDefault("HINDEMITH_DB_URL", "jdbc:postgresql://localhost:5432/hindemith");
+        String user = System.getenv().getOrDefault("HINDEMITH_DB_USER", "philipp");
+        String pass = System.getenv().getOrDefault("HINDEMITH_DB_PASSWORD", "philipp");
+
+        try {
+            var repo = new PostgresHindemithChordRepository(url, user, pass);
+            repo.createTableIfNotExists();
+            interactor = new UseCaseInteractor(midiAdapter, repo);
+        } catch (Exception e) {
+            // Fallback: allow MIDI-only commands to continue
+            System.err.println("[WARN] Could not initialize DB repository: " + e.getMessage());
+            interactor = new UseCaseInteractor(midiAdapter);
+        }
 
         if (args.length > 0) { handle(args); return; }
         else {
@@ -27,8 +45,7 @@ public class Main {
                     .forEach(i -> System.out.printf("[MIDI] %s | %s | %s%n", i.getName(), i.getDescription(), i.getVendor()));
             case "play" -> {
                 if (args.length >= 2 && "chords".equalsIgnoreCase(args[1])) {
-                    System.out.println("[MIDI] Loading Hindemith chords...");
-                    interactor.loadHindemithChordFile();
+
                     List<HindemithChord> hindemithChords = interactor.getSomeHindemithChords();
                     if (hindemithChords == null || hindemithChords.isEmpty()) {
                         System.out.println("[MIDI] No chords available after loading.");
@@ -50,6 +67,20 @@ public class Main {
                     String device = args.length >= 5 ? args[4] : null; // delegate auto selection to adapter
                     System.out.printf("[MIDI] Playing note %d for %d ms at vel %.2f on '%s'%n", note, ms, vel, device == null ? "(auto)" : device);
                     interactor.sendToneToDevice(new Tone(ms, note, vel), device);
+                }
+            }
+            case "calculate" -> {
+                if (args.length < 3) {
+                    System.out.println("Usage: calculate <minLowerNote> <maxUpperNote>");
+                    return;
+                }
+                int minLowerNote = Integer.parseInt(args[1]);
+                int maxUpperNote = Integer.parseInt(args[2]);
+                try {
+                    var ids = interactor.calculateAndPersistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
+                    System.out.printf("[DB] Persisted %d chords for range [%d, %d].%n", ids.size(), minLowerNote, maxUpperNote);
+                } catch (IllegalStateException ise) {
+                    System.err.println("[ERROR] Persistence not configured: " + ise.getMessage());
                 }
             }
             default -> System.out.println("Unknown. Try: " + commands);

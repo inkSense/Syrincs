@@ -29,11 +29,11 @@ public class NoteCombinator {
 
         List<List<Integer>> out = new ArrayList<>();
         int[] buf = new int[k];
-        backtrack(buf, 0, minLowerNote, maxUpperNote, out);
+        backtrack(buf, 0, minLowerNote, maxUpperNote, out, new boolean[12]);
         return out;
     }
 
-    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out) {
+    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc) {
         int k = buf.length;
         if (index == k) {  // buf ist vollständig
             List<Integer> chord = new ArrayList<>(k);
@@ -43,8 +43,12 @@ public class NoteCombinator {
         }
         // Rekursiver Fall
         for (int start = min; start <= max - (k - index - 1); start++) {
+            int pc = Math.floorMod(start, 12);
+            if (usedPc[pc]) continue; // Pitch Class schon verwendet -> überspringen
+            usedPc[pc] = true;
             buf[index] = start;
-            backtrack(buf, index + 1, start + 1, max, out);
+            backtrack(buf, index + 1, start + 1, max, out, usedPc);
+            usedPc[pc] = false;
         }
     }
 

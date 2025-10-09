@@ -14,9 +14,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoadHindemithChordFileUseCase {
+public class LoadHindemithChordsUseCase {
 
-    private static final Logger LOGGER = Logger.getLogger(LoadHindemithChordFileUseCase.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoadHindemithChordsUseCase.class.getName());
 
     //SkalenName, DissonanzGrad, numNotes, Rahmenintervall
     Map<String, Map<Integer, Map<Integer, Map<FrameIntervalRange, List<HindemithChord>>>>> allChords = new HashMap<>();

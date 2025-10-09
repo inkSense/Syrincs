@@ -8,20 +8,25 @@ public class HindemithChord extends Chord {
 
     private Integer rootNote = null;
     private final List<HindemithInterval> rootHindemithIntervals; //intervals from rootNote to remaining notes
-    private int group;
+    private Integer group; // 1..14, or null if unknown
 
     public HindemithChord(List<Integer> notes) {
         super(notes);
         this.rootNote = calculateRootNote(getAllIntervals());
         this.rootHindemithIntervals = calculateRootIntervals();
+        this.group = null;
     }
 
     public Integer getRootNote() {
             return rootNote;
     }
 
-    public int getGroup() {
+    public Integer getGroup() {
         return group;
+    }
+
+    public void setGroup(Integer group) {
+        this.group = group;
     }
 
     public List<HindemithInterval> getRootIntervals() {
