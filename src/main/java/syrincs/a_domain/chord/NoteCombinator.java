@@ -17,10 +17,6 @@ import static java.lang.Math.abs;
 
 public class NoteCombinator {
 
-    private final List<List<Integer>> allChords = new ArrayList<>();
-
-    public List<List<Integer>> getAllChords() {return allChords;}
-
     private static final Logger LOGGER = Logger.getLogger(NoteCombinator.class.getName());
 
     public List<List<Integer>> generateChords(int k, int minLowerNote, int maxUpperNote) {
@@ -29,10 +25,27 @@ public class NoteCombinator {
         // Wenn nicht genug Töne in der Range vorhanden sind, gibt es keine Kombinationen
         if ((maxUpperNote - minLowerNote + 1) < k) return List.of();
 
-        List<List<Integer>> out = new ArrayList<>();
+        final int octaves = 3;
+
+        // 1) Alle Kombinationen generieren (ohne Pitch-Class-/Spannweiten-Filter)
+        List<List<Integer>> all = new ArrayList<>();
         int[] buf = new int[k];
-        backtrack(buf, 0, minLowerNote, maxUpperNote, out, new boolean[12], 3);
-        return out;
+        backtrack(buf, 0, minLowerNote, maxUpperNote, all, new boolean[12], octaves);
+
+        // 2) Nachträglich filtern:
+        return filter(all, octaves);
+    }
+
+    private List<List<Integer>> filter(List<List<Integer>> all, int octaves){
+        // keine doppelten Pitch-Classes
+        // Spannweite < octaves*12 (keine Akkorde über x Oktaven)
+        List<List<Integer>> filtered = new ArrayList<>();
+        for (List<Integer> chord : all) {
+            if (hasUniquePitchClasses(chord) && withinOctaves(chord, octaves)) {
+                filtered.add(chord);
+            }
+        }
+        return filtered;
     }
 
     private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc, int octaves) {
@@ -44,40 +57,28 @@ public class NoteCombinator {
             return;
         }
 
-        int remaining = k - index - 1;
-
-        if (index == 0) {
-            // Grundlegende Kombinations-Grenze (ohne Spannweitenkappung):
-            int lastStart = max - remaining;
-            for (int start = min; start <= lastStart; start++) {
-                int pc = Math.floorMod(start, 12);
-                if (usedPc[pc]) continue;
-                usedPc[pc] = true;
-                buf[index] = start;
-
-                // Kappen jetzt relativ zur tatsächlich gewählten tiefsten Note (start)
-                int spanCapMax = Math.min(max, start + (octaves * 12 - 1));
-                backtrack(buf, index + 1, start + 1, spanCapMax, out, usedPc, octaves);
-                usedPc[pc] = false;
-            }
-            return;
-        }
-
-        // index > 0: tiefste Note ist bereits gewählt in buf[0]
-        int lowest = buf[0];
-        int spanCapMax = Math.min(max, lowest + (octaves * 12 - 1));
-
-        int lastStart = spanCapMax - remaining;
-        if (lastStart < min) return;
-
-        for (int start = min; start <= lastStart; start++) {
-            int pc = Math.floorMod(start, 12);
-            if (usedPc[pc]) continue;
-            usedPc[pc] = true;
+        // Standard-Kombinationsgeneration (streng ansteigend), ohne weitere Filter
+        for (int start = min; start <= max - (k - index - 1); start++) {
             buf[index] = start;
-            backtrack(buf, index + 1, start + 1, spanCapMax, out, usedPc, octaves);
-            usedPc[pc] = false;
+            backtrack(buf, index + 1, start + 1, max, out, usedPc, octaves);
         }
+    }
+
+    private static boolean withinOctaves(List<Integer> chord, int octaves) {
+        if (chord.isEmpty()) return true;
+        int lowest = chord.get(0);
+        int highest = chord.get(chord.size() - 1);
+        return (highest - lowest) < (octaves * 12);
+    }
+
+    private static boolean hasUniquePitchClasses(List<Integer> chord) {
+        boolean[] seen = new boolean[12];
+        for (int n : chord) {
+            int pc = Math.floorMod(n, 12);
+            if (seen[pc]) return false;
+            seen[pc] = true;
+        }
+        return true;
     }
 
     private void print(List<List<Integer>> chords) {
