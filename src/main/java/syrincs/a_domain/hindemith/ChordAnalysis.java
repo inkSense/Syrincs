@@ -10,14 +10,14 @@ public class ChordAnalysis {
 
     public static final class Result {
         public final Column column;
-        public final Optional<Integer> rootNote; // MIDI
-        public final Optional<Integer> group; // 1..14
+        public final int rootNote; // MIDI
+        public final int group; // 1..14
         public final int frameInterval;
         public final List<Integer> notes; // sorted copy
 
         public Result(Column column,
-                      Optional<Integer> rootNote,
-                      Optional<Integer> group,
+                      int rootNote,
+                      int group,
                       int frameInterval,
                       List<Integer> notes) {
             this.column = column;
@@ -46,9 +46,12 @@ public class ChordAnalysis {
         Column column = hasTritoneInPitchClasses(notes) ? Column.B_WITH_TRITONE : Column.A_TRITONE_FREE;
 
         HindemithChord hindemithChord = new HindemithChord(notes);
-        Optional<Integer> root = Optional.ofNullable(hindemithChord.getRootNote());
+        Integer root = hindemithChord.getRootNote();
+        if (root == null) {
+            throw new IllegalStateException("Root note must not be null for analyzed chord");
+        }
 
-        Optional<Integer> group = classifyChordGroup(hindemithChord, notes.get(0));
+        int group = classifyChordGroup(hindemithChord, notes.get(0));
 
         return new Result(column, root, group, frame, notes);
     }
@@ -64,7 +67,7 @@ public class ChordAnalysis {
         return false;
     }
 
-    private Optional<Integer> classifyChordGroup(HindemithChord hindemithChord, int bassNote) {
+    private int classifyChordGroup(HindemithChord hindemithChord, int bassNote) {
         var specs = new ChordSpecificationRepository();
         Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications(); // 1..14
 
@@ -101,7 +104,7 @@ public class ChordAnalysis {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
             if (ChordRules.matches(hindemithChord, bassNote, spec)) {
-                return Optional.of(g);
+                return g;
             }
         }
         throw new IllegalStateException("Chord group has no matching groups");

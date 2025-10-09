@@ -15,10 +15,8 @@ class HindemithChordAnalysisNoteCombinatorTest {
         ChordAnalysis ca = new ChordAnalysis();
         var res = ca.analyze(List.of(60, 64, 67));
         assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
-        assertTrue(res.rootNote.isPresent());
-        assertEquals(60, res.rootNote.get());
-        assertTrue(res.group.isPresent());
-        assertEquals(1, res.group.get());
+        assertEquals(60, res.rootNote);
+        assertEquals(1, res.group);
         assertEquals(7, res.frameInterval);
         assertEquals(List.of(60, 64, 67), res.notes);
     }
@@ -30,10 +28,8 @@ class HindemithChordAnalysisNoteCombinatorTest {
         // Contains a tritone 60-66; best interval is minor third 66-69, hence root 66 per project logic
         var res = ca.analyze(List.of(60, 66, 69));
         assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
-        assertTrue(res.rootNote.isPresent());
-        assertEquals(66, res.rootNote.get());
-        assertTrue(res.group.isPresent());
-        assertEquals(14, res.group.get());
+        assertEquals(66, res.rootNote);
+        assertEquals(14, res.group);
         assertEquals(9, res.frameInterval);
         assertEquals(List.of(60, 66, 69), res.notes);
     }
@@ -175,12 +171,10 @@ class HindemithChordAnalysisNoteCombinatorTest {
             var res = ca.analyze(example.notes());
             assertEquals(example.column(), res.column, "Group mismatch for " + example.notes());
             if (example.expectedRoot() != null) {
-                assertTrue(res.rootNote.isPresent(), "Expected root present for " + example.notes());
-                assertEquals(example.expectedRoot().intValue(), res.rootNote.get().intValue(), "Root mismatch for " + example.notes());
+                assertEquals(example.expectedRoot().intValue(), res.rootNote, "Root mismatch for " + example.notes());
             }
             if (example.expectedGroup() != null) {
-                assertTrue(res.group.isPresent(), "Expected degree present for " + example.notes());
-                assertEquals(example.expectedGroup().intValue(), res.group.get().intValue(), "Degree mismatch for " + example.notes());
+                assertEquals(example.expectedGroup().intValue(), res.group, "Degree mismatch for " + example.notes());
             }
         }
     }

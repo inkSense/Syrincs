@@ -39,7 +39,7 @@ public class PersistHindemithChordUseCase {
             HindemithChord chord = new HindemithChord(notes); // constructor computes needed properties
             // Determine group via ChordAnalysis and attach to entity so the repository can persist it
             var result = analysis.analyze(notes);
-            chord.setGroup(result.group.orElse(null));
+            chord.setGroup(result.group);
             long id = repository.save(chord);
             ids.add(id);
         }

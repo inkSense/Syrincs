@@ -24,10 +24,8 @@ class AnalyseHindemithChordByNoteCombinatorUseCaseConnectionTest {
     void analyzeMajorTriad() {
         var res = interactor.analyzeChordByHindemith(List.of(60, 64, 67));
         assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
-        assertTrue(res.rootNote.isPresent());
-        assertEquals(60, res.rootNote.get());
-        assertTrue(res.group.isPresent());
-        assertEquals(1, res.group.get());
+        assertEquals(60, res.rootNote);
+        assertEquals(1, res.group);
         assertEquals(List.of(60, 64, 67), res.notes);
     }
 
@@ -36,10 +34,8 @@ class AnalyseHindemithChordByNoteCombinatorUseCaseConnectionTest {
     void analyzeTritoneChord() {
         var res = interactor.analyzeChordByHindemith(List.of(60, 66, 69));
         assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
-        assertTrue(res.rootNote.isPresent());
-        assertEquals(66, res.rootNote.get());
-        assertTrue(res.group.isPresent());
-        assertEquals(14, res.group.get());
+        assertEquals(66, res.rootNote);
+        assertEquals(14, res.group);
         assertEquals(List.of(60, 66, 69), res.notes);
     }
 }
