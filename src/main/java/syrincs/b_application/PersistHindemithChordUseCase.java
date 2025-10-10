@@ -1,7 +1,5 @@
 package syrincs.b_application;
 
-import syrincs.a_domain.chord.NoteCombinator;
-import syrincs.a_domain.hindemith.ChordAnalysis;
 import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.b_application.ports.HindemithChordRepositoryPort;
 
@@ -23,22 +21,7 @@ public class PersistHindemithChordUseCase {
     private final Logger LOGGER = Logger.getLogger(PersistHindemithChordUseCase.class.getName());
 
     public PersistHindemithChordUseCase(HindemithChordRepositoryPort repository) {
-        this.repository = Objects.requireNonNull(repository, "repository must not be null");
-    }
-
-    public List<HindemithChord> generate(int k, int minLowerNote, int maxUpperNote, int maxOctaves) {
-        NoteCombinator combinator = new NoteCombinator();
-        List<List<Integer>> noteSets = combinator.generateChords(k, minLowerNote, maxUpperNote);
-        noteSets = combinator.keepWidthLessThanOctaves(noteSets, maxOctaves);
-        List<HindemithChord> hindemithChords = new ArrayList<>();
-        ChordAnalysis analysis = new ChordAnalysis();
-        for (List<Integer> notes : noteSets) {
-            HindemithChord chord = new HindemithChord(notes);
-            var result = analysis.analyze(notes);
-            chord.setGroup(result.group);
-            hindemithChords.add(chord);
-        }
-        return hindemithChords;
+        this.repository = repository;
     }
 
 

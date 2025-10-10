@@ -1,6 +1,10 @@
 package syrincs.a_domain.hindemith;
 
+import syrincs.a_domain.Interval;
+import syrincs.a_domain.chord.Chord;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChordAnalysis {
     // Algorithmus zur Bestimmung eines Akkordes:
@@ -37,23 +41,86 @@ public class ChordAnalysis {
      * - Ermittelt eine Akkordgruppe 0..13, indem die vorhandenen Constraints geprüft werden
      */
     public Result analyze(List<Integer> midiNotes) {
-        if (midiNotes == null || midiNotes.size() < 2) {
-            throw new IllegalArgumentException("Need at least 2 notes to analyze a chord");
+        if (midiNotes == null || midiNotes.size() < 3) {
+            throw new IllegalArgumentException("Need at least 3 notes to analyze a chord");
         }
         List<Integer> notes = midiNotes.stream().sorted().toList();
         int frame = Collections.max(notes) - Collections.min(notes);
 
         Column column = hasTritoneInPitchClasses(notes) ? Column.B_WITH_TRITONE : Column.A_TRITONE_FREE;
 
-        HindemithChord hindemithChord = new HindemithChord(notes);
-        Integer root = hindemithChord.getRootNote();
-        if (root == null) {
-            throw new IllegalStateException("Root note must not be null for analyzed chord");
-        }
+        Chord chord = new Chord(notes);
+        List<HindemithInterval> intervals = mapIntervals(chord.getAllIntervals());
+        Integer root = calculateRootNote(intervals);
+        List<HindemithInterval> rootNoteIntervals = calculateRootIntervals(intervals, chord.getNumNotes());
+        List<HindemithInterval> pcHindemithIntervals = calculateAllIntervalsOfPitchClasses(chord.getNotes());
 
-        int group = classifyChordGroup(hindemithChord, notes.get(0));
+        int group = classifyChordGroup(notes.getFirst(), root, intervals, rootNoteIntervals, pcHindemithIntervals);
 
         return new Result(column, root, group, frame, notes);
+    }
+
+
+
+
+    private List<HindemithInterval> calculateRootIntervals(List<HindemithInterval> intervals, int numNotes){
+        // Provided that Intervals are in the right order
+        return intervals.subList(0, numNotes - 1);
+    }
+
+    private Integer calculateRootNote(List<HindemithInterval> hindemithIntervals){
+        List<HindemithInterval> bestHindemithInterval = calculateBestInterval(hindemithIntervals);
+
+        if (bestHindemithInterval.isEmpty()) {
+            throw new IllegalArgumentException("No best hindemith interval found");
+        }
+        if (bestHindemithInterval.size() == 1) {
+            return bestHindemithInterval.getFirst().getRootNote();
+        }
+        // Immer das unterste nehmen. Vgl. Unterweisung im Tonsatz S. 120
+        return bestHindemithInterval.stream().mapToInt(HindemithInterval::getRootNote).min().orElse(bestHindemithInterval.getFirst().getRootNote());
+
+    }
+
+    private List<HindemithInterval> calculateBestInterval(List<HindemithInterval> hindemithIntervals){
+        List<HindemithInterval> bestHindemithInterval = new ArrayList<>();
+
+        // Wir berechnen die besten Intervalle basierend auf allen Notenpaaren
+        for(HindemithInterval hindemithInterval : hindemithIntervals){
+            if(bestHindemithInterval.isEmpty()){
+                bestHindemithInterval.add(hindemithInterval);
+                continue;
+            }
+
+            if ( bestHindemithInterval.getFirst().getQuality() > hindemithInterval.getQuality() && hindemithInterval.getQuality() != -1 ) {
+                bestHindemithInterval.clear();
+                bestHindemithInterval.add(hindemithInterval);
+            } else if (bestHindemithInterval.getFirst().getQuality() == hindemithInterval.getQuality()) {
+                bestHindemithInterval.add(hindemithInterval);
+            }
+        }
+        return bestHindemithInterval;
+    }
+
+
+
+    public List<HindemithInterval> calculateAllIntervalsOfPitchClasses(List<Integer> notes){
+        List<HindemithInterval> hindemithIntervalList = new ArrayList<>();
+        List<Integer> pitchClasses = notes.stream().map(n-> n%12).distinct().sorted().toList();
+        for (int i = 0; i < pitchClasses.size(); i++) {
+            for (int gap = 1; i + gap < pitchClasses.size(); gap++) {
+                HindemithInterval hindemithInterval = new HindemithInterval(pitchClasses.get(i), pitchClasses.get(i+gap));
+                hindemithIntervalList.add(hindemithInterval);
+            }
+        }
+        return hindemithIntervalList;
+    }
+
+
+    private List<HindemithInterval> mapIntervals(List<Interval> from){
+        return from.stream()
+                .map(i -> new HindemithInterval(i.getLowNote(), i.getHighNote()))
+                .collect(Collectors.toList());
     }
 
     private boolean hasTritoneInPitchClasses(List<Integer> notes) {
@@ -67,9 +134,15 @@ public class ChordAnalysis {
         return false;
     }
 
-    private int classifyChordGroup(HindemithChord hindemithChord, int bassNote) {
+    private int classifyChordGroup(
+            int bassNote,
+            int rootNote,
+            List<HindemithInterval> intervals,
+            List<HindemithInterval> rootNoteIntervals,
+            List<HindemithInterval> pcHindemithIntervals
+    ) {
         var specs = new ChordSpecificationRepository();
-        Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications(); // 1..14
+        Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications();
 
         // Prioritize more specific rules:
         // 1) multiple tritones
@@ -103,7 +176,11 @@ public class ChordAnalysis {
         for (Integer g : order) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
-            if (ChordRules.matches(hindemithChord, bassNote, spec)) {
+            boolean match1 = ChordRules.matchesIntervalsOnly(intervals, rootNoteIntervals, pcHindemithIntervals, spec);
+            boolean match2 = ChordRules.rootRelation(bassNote, rootNote, spec.getRootNoteEqual());
+            boolean match3 = ChordRules.columnRequirement(pcHindemithIntervals, spec.getColumnRequirement());
+
+            if (match1 && match2 && match3) {
                 return g;
             }
         }
@@ -111,13 +188,15 @@ public class ChordAnalysis {
     }
 
     public List<HindemithChord> analyzeList(List<List<Integer>> noteSets) {
-
         List<HindemithChord> hindemithChords = new ArrayList<>();
         for (List<Integer> notes : noteSets) {
-            HindemithChord chord = new HindemithChord(notes);
             var result = analyze(notes);
-            chord.setGroup(result.group);
-            hindemithChords.add(chord);
+            HindemithChord hindemithChord = new HindemithChord(
+                    notes,
+                    result.rootNote,
+                    result.group
+            );
+            hindemithChords.add(hindemithChord);
         }
         return hindemithChords;
     }

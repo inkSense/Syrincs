@@ -1,6 +1,7 @@
 package syrincs.b_application;
 
 import syrincs.a_domain.Tone;
+import syrincs.a_domain.chord.Chord;
 import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.b_application.ports.MidiOutputPort;
 
@@ -26,7 +27,7 @@ public class SendToMidiUseCase {
         midiOutput.sendToneToDevice(tone, deviceNameSubstring);
     }
 
-    public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        midiOutput.sendChordToDevice(hindemithChord, deviceNameSubstring);
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        midiOutput.sendChordToDevice(chord, deviceNameSubstring);
     }
 }

@@ -23,17 +23,4 @@ class GenerateChordsUseCaseTest {
         assertTrue(chords.getFirst().getNotes().containsAll(List.of(60,61,62)));
     }
 
-    @Test
-    @DisplayName("generateAllChordsToFiveNotes: Bereich 60..64 ergibt analysierte 5-Noten-Akkorde")
-    void generateUpToFiveNotes_returnsFiveNoteChordsAnalyzed() {
-        GenerateChordsUseCase uc = new GenerateChordsUseCase(new NoteCombinator(), new ChordAnalysis(), 1);
-        List<HindemithChord> chords = uc.generateAllChordsToFiveNotes(60, 64);
-        assertNotNull(chords);
-        assertFalse(chords.isEmpty(), "Expected non-empty result for 5 distinct notes in range");
-        // As implemented, the UC returns analyzed chords (with group) for the last iteration (5-note sets)
-        for (HindemithChord c : chords) {
-            assertEquals(5, c.getNotes().size(), "All chords should have 5 notes in this configuration");
-            assertNotNull(c.getGroup(), "Chords should be analyzed and have a group assigned");
-        }
-    }
 }

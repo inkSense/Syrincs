@@ -1,7 +1,6 @@
 package syrincs.a_domain.chord;
 
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -19,7 +18,7 @@ public class NoteCombinator {
         // 1) Alle Kombinationen generieren (ohne Pitch-Class-/Spannweiten-Filter)
         List<List<Integer>> all = new ArrayList<>();
         int[] buf = new int[k];
-        backtrack(buf, 0, minLowerNote, maxUpperNote, all, new boolean[12]);
+        backtrack(buf, 0, minLowerNote, maxUpperNote, all);
         return keepUniquePitchClasses(all);
     }
 
@@ -43,7 +42,7 @@ public class NoteCombinator {
         return filtered;
     }
 
-    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc) {
+    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out) {
         int k = buf.length;
         if (index == k) {
             List<Integer> chord = new ArrayList<>(k);
@@ -55,7 +54,7 @@ public class NoteCombinator {
         // Standard-Kombinationsgeneration (streng ansteigend), ohne weitere Filter
         for (int start = min; start <= max - (k - index - 1); start++) {
             buf[index] = start;
-            backtrack(buf, index + 1, start + 1, max, out, usedPc);
+            backtrack(buf, index + 1, start + 1, max, out);
         }
     }
 
@@ -63,7 +62,7 @@ public class NoteCombinator {
         if (chord.isEmpty()) return true;
         int lowest = chord.getFirst();
         int highest = chord.getLast();
-        return (highest - lowest) < (octaves * 12);
+        return (highest - lowest) <= (octaves * 12);
     }
 
     private static boolean hasUniquePitchClasses(List<Integer> chord) {

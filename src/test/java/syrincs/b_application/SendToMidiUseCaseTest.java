@@ -40,7 +40,7 @@ class SendToMidiUseCaseTest {
         System.out.println("[MIDI] Found target output: " + deviceName + " -> attempting to send a chord");
 
         // C major triad within safe MIDI range
-        HindemithChord hindemithChord = new HindemithChord(List.of(64, 67, 72));
+        HindemithChord hindemithChord = new HindemithChord(List.of(64, 67, 72), 72, 1);
 
         assertDoesNotThrow(() -> sendToMidiUseCase.sendChordToDevice(hindemithChord, deviceName),
                 "Sending chord to device should not throw");

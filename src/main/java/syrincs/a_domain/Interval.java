@@ -1,6 +1,10 @@
 package syrincs.a_domain;
 
 
+import syrincs.b_application.PersistHindemithChordUseCase;
+
+import java.util.logging.Logger;
+
 public class Interval {
 
     private final int lowNote;
@@ -8,7 +12,7 @@ public class Interval {
     private final int realDifference;
     private final int differenceWithoutOctavations;
 
-
+    private final Logger LOGGER = Logger.getLogger(Interval.class.getName());
     public Interval(int lowNote, int highNote) {
         if(lowNote <= highNote){
             this.lowNote = lowNote;
@@ -16,11 +20,7 @@ public class Interval {
         } else {
             this.highNote = lowNote;
             this.lowNote = highNote;
-            try { // Todo: Das in Logger packen
-                throw new IllegalArgumentException("Variable lowNote ist größer als highNote. Die Werte wurden getauscht.");
-            } catch (Exception e){
-                System.out.println(e.getStackTrace()[0] + ": "+ e.getMessage());
-            }
+            LOGGER.info("Variable lowNote ist größer als highNote. Die Werte wurden getauscht.");
         }
         this.realDifference = (this.highNote - this.lowNote);
         this.differenceWithoutOctavations = realDifference % 12;

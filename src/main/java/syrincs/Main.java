@@ -69,12 +69,8 @@ public class Main {
                 }
                 int minLowerNote = Integer.parseInt(args[1]);
                 int maxUpperNote = Integer.parseInt(args[2]);
-                try {
-                    var ids = interactor.calculateAndPersistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
-                    System.out.printf("[DB] Persisted %d chords for range [%d, %d].%n", ids.size(), minLowerNote, maxUpperNote);
-                } catch (IllegalStateException ise) {
-                    System.err.println("[ERROR] Persistence not configured: " + ise.getMessage());
-                }
+                var ids = interactor.calculateAndPersistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
+                System.out.printf("[DB] Persisted %d chords for range [%d, %d].%n", ids.size(), minLowerNote, maxUpperNote);
             }
             default -> System.out.println("Unknown. Try: " + commands);
         }

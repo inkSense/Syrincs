@@ -16,22 +16,12 @@ public final class ChordRules {
     private ChordRules() {}
 
     /**
-     * Full match: interval-related parts PLUS optional root/bass relation and column requirement.
-     * This is the primary entry point for both generation and analysis.
-     */
-    public static boolean matches(HindemithChord hindemithChord, int bassNote, ChordSpecification spec) {
-        return matchesIntervalsOnly(hindemithChord, spec)
-                && rootRelation(bassNote, hindemithChord.getRootNote(), spec.getRootNoteEqual())
-                && columnRequirement(hindemithChord, spec.getColumnRequirement());
-    }
-
-    /**
      * Matches only the interval-related parts of a specification (no root/bass comparison).
      */
-    public static boolean matchesIntervalsOnly(HindemithChord hindemithChord, ChordSpecification spec) {
-        List<HindemithInterval> allHindemithIntervals = hindemithChord.getAllHindemithIntervals();
-        List<HindemithInterval> rootHindemithIntervals = hindemithChord.getRootIntervals();
-        List<HindemithInterval> pcHindemithIntervals = hindemithChord.calculateAllIntervalsOfPitchClasses();
+    public static boolean matchesIntervalsOnly(List<HindemithInterval> allHindemithIntervals,
+                                               List<HindemithInterval> rootHindemithIntervals,
+                                               List<HindemithInterval> pcHindemithIntervals,
+                                               ChordSpecification spec) {
 
         return intervalsNotInSet(allHindemithIntervals, spec.getExcludeAll())
                 && layersOfMajor3rdOrPerfect4th(rootHindemithIntervals, spec.getLayersOfMajor3OrPerfect4())
@@ -96,17 +86,21 @@ public final class ChordRules {
         return tritones >= 2;
     }
 
-    private static boolean rootRelation(int bass, Integer root, String condition) {
+    public static boolean rootRelation(int bass, Integer root, String condition) {
         if (condition == null) return true;
         if (root == null) return false;
         return "==".equals(condition) ? (bass == root) : (bass != root);
     }
 
-    private static boolean columnRequirement(HindemithChord hindemithChord, ChordSpecification.ColumnRequirement req) {
+    public static boolean columnRequirement(List<HindemithInterval> pcHindemithIntervals, ChordSpecification.ColumnRequirement req) {
         if (req == null || req == ChordSpecification.ColumnRequirement.ANY) return true;
         // detect tritone on pitch-class level
-        List<HindemithInterval> pcHindemithIntervals = hindemithChord.calculateAllIntervalsOfPitchClasses();
+
+
+        //List<HindemithInterval> pcHindemithIntervals = hindemithChord.calculateAllIntervalsOfPitchClasses(); // ToDo: löschen
+
+
         boolean hasTritone = pcHindemithIntervals.stream().anyMatch(i -> i.getDifferenceWithoutOctavations() == 6);
-        return (req == ChordSpecification.ColumnRequirement.WITH_TRITONE) ? hasTritone : !hasTritone;
+        return (req == ChordSpecification.ColumnRequirement.WITH_TRITONE) == hasTritone;
     }
 }

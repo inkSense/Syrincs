@@ -20,7 +20,6 @@ public class HindemithInterval extends Interval {
         super(lowNote, highNote);
         this.quality = intervalsSortedByQualityFirst.indexOf(getDifferenceWithoutOctavations());
         this.rootNote = chooseLowerNoteAsRootNote.contains(getDifferenceWithoutOctavations()) ? lowNote : highNote;
-
     }
 
     public int getQuality(){
