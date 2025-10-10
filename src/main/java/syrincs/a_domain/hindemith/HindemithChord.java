@@ -124,6 +124,11 @@ public class HindemithChord extends Chord {
         return hindemithIntervalList;
     }
 
+    public HindemithChord transpose(int pitch){
+        List<Integer> newNotes = getNotes().stream().map(n -> n + pitch).toList();
+        return new HindemithChord(newNotes, getRootNote() + pitch, getGroup());
+    }
+
 
 }
 

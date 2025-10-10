@@ -109,4 +109,16 @@ public class ChordAnalysis {
         }
         throw new IllegalStateException("Chord group has no matching groups");
     }
+
+    public List<HindemithChord> analyzeList(List<List<Integer>> noteSets) {
+
+        List<HindemithChord> hindemithChords = new ArrayList<>();
+        for (List<Integer> notes : noteSets) {
+            HindemithChord chord = new HindemithChord(notes);
+            var result = analyze(notes);
+            chord.setGroup(result.group);
+            hindemithChords.add(chord);
+        }
+        return hindemithChords;
+    }
 }

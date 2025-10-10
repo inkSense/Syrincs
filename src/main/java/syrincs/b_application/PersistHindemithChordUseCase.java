@@ -26,37 +26,30 @@ public class PersistHindemithChordUseCase {
         this.repository = Objects.requireNonNull(repository, "repository must not be null");
     }
 
-    /**
-     * Generates all k-note chords within the given MIDI range and persists them.
-     * Returns the generated database IDs in insertion order.
-     */
-    public List<Long> generateAndPersist(int k, int minLowerNote, int maxUpperNote) {
+    public List<HindemithChord> generate(int k, int minLowerNote, int maxUpperNote, int maxOctaves) {
         NoteCombinator combinator = new NoteCombinator();
         List<List<Integer>> noteSets = combinator.generateChords(k, minLowerNote, maxUpperNote);
-        List<Long> ids = new ArrayList<>(noteSets.size());
+        noteSets = combinator.keepWidthLessThanOctaves(noteSets, maxOctaves);
+        List<HindemithChord> hindemithChords = new ArrayList<>();
         ChordAnalysis analysis = new ChordAnalysis();
         for (List<Integer> notes : noteSets) {
-            HindemithChord chord = new HindemithChord(notes); // constructor computes needed properties
-            // Determine group via ChordAnalysis and attach to entity so the repository can persist it
+            HindemithChord chord = new HindemithChord(notes);
             var result = analysis.analyze(notes);
             chord.setGroup(result.group);
-            long id = repository.save(chord);
+            hindemithChords.add(chord);
+        }
+        return hindemithChords;
+    }
+
+
+    public List<Long> persist(List<HindemithChord> chords) {
+        List<Long> ids = new ArrayList<>(chords.size());
+        for (HindemithChord chord : chords) {
+            long id  = repository.save(chord);
             ids.add(id);
         }
         return ids;
     }
 
-    /**
-     * Convenience method to generate and persist all triads in the range.
-     */
-    public List<Long> persistAllChordsToFiveNotes(int minLowerNote, int maxUpperNote) {
-        List<Long> ids = new ArrayList<>();
-        List<Integer> numNotes = new ArrayList<>(List.of(3, 4, 5));
-        for(Integer numNote : numNotes) {
-            List<Long> idsOfThisGroup = generateAndPersist(numNote, minLowerNote, maxUpperNote);
-            ids.addAll(idsOfThisGroup);
-            LOGGER.info("Generated " + idsOfThisGroup.size() + " ids with " + numNote + " notes.");
-        }
-        return ids;
-    }
+
 }

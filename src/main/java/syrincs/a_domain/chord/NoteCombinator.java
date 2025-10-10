@@ -16,30 +16,34 @@ public class NoteCombinator {
         // Wenn nicht genug Töne in der Range vorhanden sind, gibt es keine Kombinationen
         if ((maxUpperNote - minLowerNote + 1) < k) return List.of();
 
-        final int octaves = 3;
-
         // 1) Alle Kombinationen generieren (ohne Pitch-Class-/Spannweiten-Filter)
         List<List<Integer>> all = new ArrayList<>();
         int[] buf = new int[k];
-        backtrack(buf, 0, minLowerNote, maxUpperNote, all, new boolean[12], octaves);
-
-        // 2) Nachträglich filtern:
-        return filter(all, octaves);
+        backtrack(buf, 0, minLowerNote, maxUpperNote, all, new boolean[12]);
+        return keepUniquePitchClasses(all);
     }
 
-    private List<List<Integer>> filter(List<List<Integer>> all, int octaves){
-        // keine doppelten Pitch-Classes
-        // Spannweite < octaves*12 (keine Akkorde über x Oktaven)
+    public List<List<Integer>> keepWidthLessThanOctaves(List<List<Integer>> all, int octaves){
         List<List<Integer>> filtered = new ArrayList<>();
         for (List<Integer> chord : all) {
-            if (hasUniquePitchClasses(chord) && withinOctaves(chord, octaves)) {
+            if (withinOctaves(chord, octaves)) {
                 filtered.add(chord);
             }
         }
         return filtered;
     }
 
-    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc, int octaves) {
+    private List<List<Integer>> keepUniquePitchClasses(List<List<Integer>> all){
+        List<List<Integer>> filtered = new ArrayList<>();
+        for (List<Integer> chord : all) {
+            if(hasUniquePitchClasses(chord)){
+                filtered.add(chord);
+            }
+        }
+        return filtered;
+    }
+
+    private void backtrack(int[] buf, int index, int min, int max, List<List<Integer>> out, boolean[] usedPc) {
         int k = buf.length;
         if (index == k) {
             List<Integer> chord = new ArrayList<>(k);
@@ -51,7 +55,7 @@ public class NoteCombinator {
         // Standard-Kombinationsgeneration (streng ansteigend), ohne weitere Filter
         for (int start = min; start <= max - (k - index - 1); start++) {
             buf[index] = start;
-            backtrack(buf, index + 1, start + 1, max, out, usedPc, octaves);
+            backtrack(buf, index + 1, start + 1, max, out, usedPc);
         }
     }
 

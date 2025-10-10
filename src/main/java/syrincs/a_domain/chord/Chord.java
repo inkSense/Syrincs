@@ -58,6 +58,11 @@ public class Chord {
         return frameInterval;
     }
 
+    public Chord transpose(Chord chord, int pitch){
+        List<Integer> newNotes = chord.getNotes().stream().map(n -> n + pitch).toList();
+        return new Chord(newNotes);
+    }
+
 
 
     public String toString(){

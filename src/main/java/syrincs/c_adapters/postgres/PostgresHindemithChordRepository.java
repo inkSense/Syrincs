@@ -33,28 +33,6 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
         return DriverManager.getConnection(url, user, password);
     }
 
-    /**
-     * Creates the table if it does not exist. Call this during bootstrap if desired.
-     */
-    public void createTableIfNotExists() {
-        String sql = """
-                CREATE TABLE IF NOT EXISTS public.hindemithChords (
-                    id          SERIAL PRIMARY KEY,
-                    notes       INT[] NOT NULL,
-                    numNotes    INT NOT NULL,
-                    minNote     INT NOT NULL,
-                    maxNote     INT NOT NULL,
-                    rootNote    INT,
-                    chordGroup  INT
-                )
-                """;
-        try (Connection con = getConnection(); Statement st = con.createStatement()) {
-            st.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to ensure table exists", e);
-        }
-    }
-
     @Override
     public long save(HindemithChord chord) {
         String sql = "INSERT INTO public.hindemithChords (notes, numNotes, minNote, maxNote, rootNote, chordGroup) VALUES (?,?,?,?,?,?) RETURNING id";

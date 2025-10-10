@@ -1,5 +1,6 @@
 package syrincs.b_application;
 
+import syrincs.a_domain.chord.NoteCombinator;
 import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.a_domain.Tone;
 import syrincs.a_domain.hindemith.ChordAnalysis;
@@ -14,42 +15,39 @@ import java.util.List;
 import java.util.Objects;
 
 public class UseCaseInteractor {
-    private final MidiOutputPort midiOutput;
-    private final AnalyseChordByHindemithUseCase analyseChordByHindemithUseCase = new AnalyseChordByHindemithUseCase();
-    private PersistHindemithChordUseCase persistUseCase;
-    private GetHindemithChordsFromDbUseCase getHindemithChordsFromDbUseCase;
+
+    private final GenerateChordsUseCase generateChordsUseCase;
+    private final AnalyseChordByHindemithUseCase analyseChordByHindemithUseCase;
+    private final PersistHindemithChordUseCase persistUseCase;
+    private final GetHindemithChordsFromDbUseCase getHindemithChordsFromDbUseCase;
     private List<HindemithChord> hindemithChords;
+    private final SendToMidiUseCase send;
 
-    public UseCaseInteractor(MidiOutputPort midiOutput) {
-        this.midiOutput = midiOutput;
-    }
-
-    // Convenience: construct with repository to wire persistence use cases
     public UseCaseInteractor(MidiOutputPort midiOutput, HindemithChordRepositoryPort repository) {
-        this.midiOutput = Objects.requireNonNull(midiOutput);
-        attachRepository(repository);
-    }
-
-    public void attachRepository(HindemithChordRepositoryPort repository) {
-        Objects.requireNonNull(repository, "repository must not be null");
+        this.generateChordsUseCase = new GenerateChordsUseCase(
+                new NoteCombinator(), new ChordAnalysis(), 3
+        );
+        this.analyseChordByHindemithUseCase = new AnalyseChordByHindemithUseCase();
         this.persistUseCase = new PersistHindemithChordUseCase(repository);
         this.getHindemithChordsFromDbUseCase = new GetHindemithChordsFromDbUseCase(repository);
+        this.send = new SendToMidiUseCase(midiOutput);
     }
 
+
     public MidiDevice.Info[] listMidiOutputs() {
-        return midiOutput.listMidiOutputs();
+        return send.listMidiOutputs();
     }
 
     public MidiDevice.Info findOutputByName(String nameSubstring) {
-        return midiOutput.findOutputByName(nameSubstring);
+        return send.findOutputByName(nameSubstring);
     }
 
     public void sendToneToDevice(Tone tone, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        midiOutput.sendToneToDevice(tone, deviceNameSubstring);
+        send.sendToneToDevice(tone, deviceNameSubstring);
     }
 
     public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        midiOutput.sendChordToDevice(hindemithChord, deviceNameSubstring);
+        send.sendChordToDevice(hindemithChord, deviceNameSubstring);
     }
 
     public void loadHindemithChords() {
@@ -83,20 +81,13 @@ public class UseCaseInteractor {
         return analyseChordByHindemithUseCase.analyze(midiNotes);
     }
 
-    // === New: Persistence API exposed via interactor ===
     public List<Long> calculateAndPersistAllChordsToFiveNotes(int minLowerNote, int maxUpperNote) {
-        ensurePersistenceConfigured();
-        return persistUseCase.persistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
+        List<HindemithChord> chords = generateChordsUseCase.generateAllChordsToFiveNotes(minLowerNote, maxUpperNote);
+        return persistUseCase.persist(chords);
     }
 
     public List<HindemithChord> getAllChordsFromDb() {
-        ensurePersistenceConfigured();
         return getHindemithChordsFromDbUseCase.getAll();
     }
 
-    private void ensurePersistenceConfigured() {
-        if (persistUseCase == null || getHindemithChordsFromDbUseCase == null) {
-            throw new IllegalStateException("Repository not attached. Provide a HindemithChordRepositoryPort when constructing UseCaseInteractor or call attachRepository().");
-        }
-    }
 }

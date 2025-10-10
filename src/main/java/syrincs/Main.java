@@ -22,15 +22,8 @@ public class Main {
         String user = System.getenv().getOrDefault("HINDEMITH_DB_USER", "philipp");
         String pass = System.getenv().getOrDefault("HINDEMITH_DB_PASSWORD", "philipp");
 
-        try {
-            var repo = new PostgresHindemithChordRepository(url, user, pass);
-            repo.createTableIfNotExists();
-            interactor = new UseCaseInteractor(midiAdapter, repo);
-        } catch (Exception e) {
-            // Fallback: allow MIDI-only commands to continue
-            System.err.println("[WARN] Could not initialize DB repository: " + e.getMessage());
-            interactor = new UseCaseInteractor(midiAdapter);
-        }
+        var repo = new PostgresHindemithChordRepository(url, user, pass);
+        interactor = new UseCaseInteractor(midiAdapter, repo);
 
         if (args.length > 0) { handle(args); }
         else {

@@ -1,0 +1,71 @@
+package syrincs.b_application;
+
+import syrincs.a_domain.hindemith.HindemithChord;
+import syrincs.b_application.ports.HindemithChordRepositoryPort;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
+/**
+ * Simple in-memory fake for tests. Not thread-safe and minimal.
+ */
+class FakeHindemithChordRepository implements HindemithChordRepositoryPort {
+    private final Map<Long, HindemithChord> store = new LinkedHashMap<>();
+    private final AtomicLong seq = new AtomicLong(1);
+
+    @Override
+    public long save(HindemithChord chord) {
+        long id = seq.getAndIncrement();
+        store.put(id, chord);
+        return id;
+    }
+
+    @Override
+    public Optional<HindemithChord> findById(long id) {
+        return Optional.ofNullable(store.get(id));
+    }
+
+    @Override
+    public List<HindemithChord> findAll() {
+        return new ArrayList<>(store.values());
+    }
+
+    @Override
+    public void deleteById(long id) {
+        store.remove(id);
+    }
+
+    @Override
+    public List<HindemithChord> getAllOf(Integer group) {
+        return store.values().stream()
+                .filter(c -> c.getGroup() != null && Objects.equals(c.getGroup(), group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HindemithChord> getAllOfRootNote(Integer rootNote) {
+        return store.values().stream()
+                .filter(c -> c.getRootNote() != null && Objects.equals(c.getRootNote(), rootNote))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group) {
+        return store.values().stream()
+                .filter(c -> c.getRootNote() != null && Objects.equals(c.getRootNote(), rootNote))
+                .filter(c -> c.getGroup() != null && Objects.equals(c.getGroup(), group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer maxGroup) {
+        return store.values().stream()
+                .filter(c -> c.getRootNote() != null && Objects.equals(c.getRootNote(), rootNote))
+                .filter(c -> c.getGroup() != null && c.getGroup() <= maxGroup)
+                .collect(Collectors.toList());
+    }
+
+    // Test helpers
+    long put(HindemithChord chord) { return save(chord); }
+}

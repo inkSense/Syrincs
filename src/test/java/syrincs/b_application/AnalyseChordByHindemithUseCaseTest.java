@@ -1,19 +1,43 @@
-package syrincs.a_domain.hindemith;
+package syrincs.b_application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import syrincs.a_domain.hindemith.ChordAnalysis;
 
-import java.util.*;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HindemithChordAnalysisNoteCombinatorTest {
+class AnalyseChordByHindemithUseCaseTest {
+
+    AnalyseChordByHindemithUseCase analyseChordByHindemithUseCase = new AnalyseChordByHindemithUseCase();
+
+    @Test
+    @DisplayName("analyzeChordByHindemith: C-E-G yields column A, root C, group 1")
+    void analyzeMajorTriad() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 67));
+        assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(1, res.group);
+        assertEquals(List.of(60, 64, 67), res.notes);
+    }
+
+    @Test
+    @DisplayName("analyzeChordByHindemith: tritone chord [60,66,69] yields column B, root 66, group 14")
+    void analyzeTritoneChord() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 69));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(66, res.rootNote);
+        assertEquals(14, res.group);
+        assertEquals(List.of(60, 66, 69), res.notes);
+    }
+
+
 
     @Test
     @DisplayName("analyze: C-E-G is group A, root=C, degree=0, frame interval = 7")
     void analyze_majorTriad_basic() {
-        ChordAnalysis ca = new ChordAnalysis();
-        var res = ca.analyze(List.of(60, 64, 67));
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 67));
         assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
         assertEquals(60, res.rootNote);
         assertEquals(1, res.group);
@@ -24,9 +48,8 @@ class HindemithChordAnalysisNoteCombinatorTest {
     @Test
     @DisplayName("analyze: chord with tritone goes to group B; verifies root and degree")
     void analyze_tritoneChord_groupB_root_and_degree() {
-        ChordAnalysis ca = new ChordAnalysis();
         // Contains a tritone 60-66; best interval is minor third 66-69, hence root 66 per project logic
-        var res = ca.analyze(List.of(60, 66, 69));
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 69));
         assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
         assertEquals(66, res.rootNote);
         assertEquals(14, res.group);
@@ -166,9 +189,9 @@ class HindemithChordAnalysisNoteCombinatorTest {
     @Test
     @DisplayName("User-extendable examples: validate group (and optionally root/degree)")
     void analyze_userExtendableExamples() {
-        ChordAnalysis ca = new ChordAnalysis();
+
         for (Example example : userExamples()) {
-            var res = ca.analyze(example.notes());
+            var res = analyseChordByHindemithUseCase.analyze(example.notes());
             assertEquals(example.column(), res.column, "Group mismatch for " + example.notes());
             if (example.expectedRoot() != null) {
                 assertEquals(example.expectedRoot().intValue(), res.rootNote, "Root mismatch for " + example.notes());
@@ -185,3 +208,4 @@ class HindemithChordAnalysisNoteCombinatorTest {
                            Integer expectedRoot,
                            Integer expectedGroup) {}
 }
+

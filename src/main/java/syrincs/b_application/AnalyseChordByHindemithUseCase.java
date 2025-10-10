@@ -1,7 +1,10 @@
 package syrincs.b_application;
 
+import syrincs.a_domain.chord.NoteCombinator;
 import syrincs.a_domain.hindemith.ChordAnalysis;
+import syrincs.a_domain.hindemith.HindemithChord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,4 +23,6 @@ public class AnalyseChordByHindemithUseCase {
     public ChordAnalysis.Result analyze(List<Integer> midiNotes) {
         return analyzer.analyze(midiNotes);
     }
+
+
 }
