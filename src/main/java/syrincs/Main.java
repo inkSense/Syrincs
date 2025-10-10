@@ -44,7 +44,7 @@ public class Main {
                         System.out.println("[MIDI] No chords available after loading.");
                         return;
                     }
-                    long intervalMs = 200L; // start-to-start interval
+                    long intervalMs = 400L; // start-to-start interval
                     for (HindemithChord hindemithChord : hindemithChords) {
                         long start = System.currentTimeMillis();
                         System.out.println("[MIDI] Playing chord: " + hindemithChord);

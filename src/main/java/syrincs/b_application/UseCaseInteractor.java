@@ -63,7 +63,7 @@ public class UseCaseInteractor {
     }
 
     public List<HindemithChord> getSomeHindemithChords() {
-        loadHindemithChordsWithGroups(60, List.of(1,2,7,8));
+        loadHindemithChordsWithGroups(60, List.of(3));
         System.out.println(hindemithChords.size() + " chords loaded.");
         Collections.shuffle(hindemithChords);
         return hindemithChords;

@@ -12,17 +12,11 @@ public class ChordSpecificationRepository {
         fillChordGroupSpecifications();
     }
 
-    /** New: group specifications 1..14 (mapping from legacy 0..13 by +1). */
     public Map<Integer, ChordSpecification> getGroupSpecifications() {
-        Map<Integer, ChordSpecification> map = new LinkedHashMap<>();
-        for (int i = 0; i <= 13; i++) {
-            ChordSpecification cs = chordGroupSpecifications.get(i);
-            if (cs != null) map.put(i + 1, cs);
-        }
-        return map;
+        return chordGroupSpecifications;
     }
+
     private void fillChordGroupSpecifications() {
-        // Define original 0..13 rules using the new Builder API for internal compatibility.
         chordGroupSpecifications.put(0, ChordSpecification.builder()
                 .excludeIntervals(Set.of(1, 2, 6, 10, 11))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
@@ -34,8 +28,8 @@ public class ChordSpecificationRepository {
                 .build()); // A) I. 2.
 
         chordGroupSpecifications.put(2, ChordSpecification.builder()
-                .excludeIntervals(Set.of(1, 2, 11))
-                .requireIntervals(Set.of(6, 10))
+                .excludeIntervals(Set.of(1, 2, 11)) //check
+                .requireIntervals(Set.of(6, 10)) //check
                 .requireAnyIntervals(Set.of(7,5,4,8,3,9))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // B) II. a

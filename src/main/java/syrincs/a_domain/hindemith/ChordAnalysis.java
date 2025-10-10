@@ -154,7 +154,9 @@ public class ChordAnalysis {
         List<Integer> layering = new ArrayList<>();
         List<Integer> others = new ArrayList<>();
 
-        for (int g = 1; g <= 14; g++) {
+        List<Integer> keys = new ArrayList<>(groupSpecs.keySet());
+        Collections.sort(keys);
+        for (Integer g : keys) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
             if (spec.getMehrereTritoni()) {
@@ -181,7 +183,7 @@ public class ChordAnalysis {
             boolean match3 = ChordRules.columnRequirement(pcHindemithIntervals, spec.getColumnRequirement());
 
             if (match1 && match2 && match3) {
-                return g;
+                return g + 1;
             }
         }
         throw new IllegalStateException("Chord group has no matching groups");
