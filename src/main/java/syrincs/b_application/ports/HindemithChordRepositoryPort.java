@@ -2,6 +2,7 @@ package syrincs.b_application.ports;
 
 import syrincs.a_domain.hindemith.HindemithChord;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,5 +54,10 @@ public interface HindemithChordRepositoryPort {
     List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group);
 
     List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer maxGroup);
+
+    // New method: rootNote + multiple groups + multiple numNotes
+    List<HindemithChord> findByRootNoteAndGroupsAndNumNotes(int rootNote,
+                                                            Collection<Integer> groups,
+                                                            Collection<Integer> numNotes);
 
 }

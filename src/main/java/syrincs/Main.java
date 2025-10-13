@@ -6,6 +6,7 @@ import syrincs.a_domain.hindemith.HindemithChord;
 import syrincs.b_application.UseCaseInteractor;
 import syrincs.c_adapters.JdkMidiOutputAdapter;
 import syrincs.c_adapters.postgres.PostgresHindemithChordRepository;
+import syrincs.c_adapters.cli.CliController.PlayChordsCommand;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
 
 public class Main {
     private static UseCaseInteractor interactor;
-    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords | calculate <minLowerNote> <maxUpperNote> | analyze <note1> <note2> <note3> [more...] | delete";
+    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords [numnotes N...] [group G...] [rootnote R] | calculate <minLowerNote> <maxUpperNote> | analyze <note1> <note2> <note3> [more...] | delete";
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws Exception {
         // Bootstrap interactor with MIDI and (optional) DB repository
@@ -39,16 +40,14 @@ public class Main {
                     .forEach(i -> System.out.printf("[MIDI] %s | %s | %s%n", i.getName(), i.getDescription(), i.getVendor()));
             case "play" -> {
                 if (args.length >= 2 && "chords".equalsIgnoreCase(args[1])) {
-
-                    List<HindemithChord> hindemithChords = interactor.getSomeHindemithChords();
-                    if (hindemithChords == null || hindemithChords.isEmpty()) {
-                        System.out.println("[MIDI] No chords available after loading.");
-                        return;
+                    var controller = new syrincs.c_adapters.cli.CliController();
+                    var routed = controller.route(args);
+                    if (routed instanceof PlayChordsCommand cmd) {
+                        interactor.playChords(cmd.numNotes(), cmd.groups(), cmd.rootNotes(), 200L, null);
+                    } else {
+                        System.out.println("Unknown. Try: " + commands);
                     }
-                    for (HindemithChord hindemithChord : hindemithChords) {
-                        interactor.sendChordToDevice(hindemithChord, null, 200L); // auto-select device
-
-                    }
+                    return;
                 } else {
                     int note = args.length >= 2 ? Integer.parseInt(args[1]) : 60;
                     long ms = args.length >= 3 ? Long.parseLong(args[2]) : 100L;

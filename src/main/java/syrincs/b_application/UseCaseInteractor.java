@@ -105,4 +105,33 @@ public class UseCaseInteractor {
         LOGGER.info("[DB] TRUNCATE complete.");
     }
 
+    // Orchestration for CLI: load chords for given filters
+    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes) {
+        Objects.requireNonNull(numNotes, "numNotes");
+        Objects.requireNonNull(groups, "groups");
+        Objects.requireNonNull(rootNotes, "rootNotes");
+
+        List<HindemithChord> acc = new java.util.ArrayList<>();
+        for (Integer root : rootNotes) {
+            var part = getHindemithChordsFromDbUseCase
+                    .getAllOfRootNoteGroupsAndNumNotes(root, groups, numNotes);
+            acc.addAll(part);
+        }
+        return acc;
+    }
+
+    // Play the chords using the MIDI output adapter
+    public void playChords(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes,
+                           Long durationMs, String deviceNameSubstring)
+            throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        var chords = findChordsFor(numNotes, groups, rootNotes);
+        if (chords == null || chords.isEmpty()) {
+            System.out.println("[MIDI] No chords available after loading.");
+            return;
+        }
+        for (var hc : chords) {
+            sendChordToDevice(hc, deviceNameSubstring, durationMs);
+        }
+    }
+
 }

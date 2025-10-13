@@ -81,6 +81,22 @@ class FakeHindemithChordRepository implements HindemithChordRepositoryPort {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<HindemithChord> findByRootNoteAndGroupsAndNumNotes(int rootNote,
+                                                                    Collection<Integer> groups,
+                                                                    Collection<Integer> numNotes) {
+        if (groups == null || numNotes == null || groups.isEmpty() || numNotes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Set<Integer> groupSet = new HashSet<>(groups);
+        Set<Integer> sizeSet = new HashSet<>(numNotes);
+        return store.values().stream()
+                .filter(c -> c.getRootNote() != null && c.getRootNote() == rootNote)
+                .filter(c -> c.getGroup() != null && groupSet.contains(c.getGroup()))
+                .filter(c -> c.getNotes() != null && sizeSet.contains(c.getNotes().size()))
+                .collect(Collectors.toList());
+    }
+
     // Test helpers
     long put(HindemithChord chord) { return save(chord); }
 }

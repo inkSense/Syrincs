@@ -151,6 +151,8 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
         return trySql(sql, group);
     }
 
+
+
     @Override
     public List<HindemithChord> getAllOfRootNote(Integer rootNote){
         String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? ORDER BY id";
@@ -166,6 +168,29 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
     public List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer group){
         String sql = "SELECT notes, rootNote , chordGroup FROM public.hindemithChords WHERE rootNote = ? AND chordGroup <= ? ORDER BY id";
         return trySql(sql, rootNote, group);
+    }
+
+    @Override
+    public List<HindemithChord> findByRootNoteAndGroupsAndNumNotes(int rootNote,
+                                                                   Collection<Integer> groups,
+                                                                   Collection<Integer> numNotes) {
+        Objects.requireNonNull(groups, "groups must not be null");
+        Objects.requireNonNull(numNotes, "numNotes must not be null");
+        if (groups.isEmpty() || numNotes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords " +
+                "WHERE rootNote = ? AND chordGroup = ANY(?) AND numNotes = ANY(?) ORDER BY id";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, rootNote);
+            Array groupsArr = con.createArrayOf("int4", groups.toArray(new Integer[0]));
+            Array numNotesArr = con.createArrayOf("int4", numNotes.toArray(new Integer[0]));
+            ps.setArray(2, groupsArr);
+            ps.setArray(3, numNotesArr);
+            return executeQuery(ps);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load HindemithChords by rootNote, groups, and numNotes", e);
+        }
     }
 
 

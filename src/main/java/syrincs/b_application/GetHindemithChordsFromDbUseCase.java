@@ -61,6 +61,18 @@ public class GetHindemithChordsFromDbUseCase {
 
 
     /**
+     * Loads Hindemith chords filtered by a specific root note, a set of groups and allowed numNotes sizes.
+     * Delegates to the repository for an efficient single-query fetch.
+     * Returns an empty list if groups or numNotes are null/empty.
+     */
+    public List<HindemithChord> getAllOfRootNoteGroupsAndNumNotes(int rootNote, List<Integer> groups, List<Integer> numNotes) {
+        if (groups == null || groups.isEmpty() || numNotes == null || numNotes.isEmpty()) {
+            return List.of();
+        }
+        return repository.findByRootNoteAndGroupsAndNumNotes(rootNote, groups, numNotes);
+    }
+
+    /**
      * Loads a single chord by its id.
      */
     public Optional<HindemithChord> getById(long id) {
