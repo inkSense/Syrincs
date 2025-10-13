@@ -66,6 +66,66 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
     }
 
     @Override
+    public List<Long> saveAll(List<HindemithChord> chords) {
+        Objects.requireNonNull(chords, "chords must not be null");
+        if (chords.isEmpty()) return Collections.emptyList();
+
+        String sql = "INSERT INTO public.hindemithChords (notes, numNotes, minNote, maxNote, rootNote, chordGroup) VALUES (?,?,?,?,?,?)";
+        final int batchSize = 1000;
+        List<Long> ids = new ArrayList<>(chords.size());
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            con.setAutoCommit(false);
+
+            int count = 0;
+            for (HindemithChord chord : chords) {
+                List<Integer> notes = chord.getNotes();
+                int numNotes = notes.size();
+                int min = notes.stream().mapToInt(Integer::intValue).min().orElseThrow();
+                int max = notes.stream().mapToInt(Integer::intValue).max().orElseThrow();
+                Integer root = chord.getRootNote();
+                Integer group = chord.getGroup();
+
+                Array arr = con.createArrayOf("int4", notes.stream().toArray(Integer[]::new));
+                ps.setArray(1, arr);
+                ps.setInt(2, numNotes);
+                ps.setInt(3, min);
+                ps.setInt(4, max);
+                ps.setInt(5, root);
+                ps.setInt(6, group);
+
+                ps.addBatch();
+                count++;
+
+                if (count % batchSize == 0) {
+                    ps.executeBatch();
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        while (rs.next()) {
+                            ids.add(rs.getLong(1));
+                        }
+                    }
+                }
+            }
+
+            if (count % batchSize != 0) {
+                ps.executeBatch();
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    while (rs.next()) {
+                        ids.add(rs.getLong(1));
+                    }
+                }
+            }
+
+            con.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to batch save HindemithChords", e);
+        }
+        return ids;
+    }
+
+    @Override
     public Optional<HindemithChord> findById(long id) {
         String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords WHERE id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -117,6 +177,16 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete HindemithChord by id", e);
+        }
+    }
+
+    @Override
+    public void truncate() {
+        String sql = "TRUNCATE TABLE public.hindemithChords RESTART IDENTITY";
+        try (Connection con = getConnection(); Statement st = con.createStatement()) {
+            st.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to truncate hindemithChords", e);
         }
     }
 

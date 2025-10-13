@@ -6,6 +6,7 @@ import syrincs.b_application.ports.HindemithChordRepositoryPort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -26,12 +27,8 @@ public class PersistHindemithChordUseCase {
 
 
     public List<Long> persist(List<HindemithChord> chords) {
-        List<Long> ids = new ArrayList<>(chords.size());
-        for (HindemithChord chord : chords) {
-            long id  = repository.save(chord);
-            ids.add(id);
-        }
-        return ids;
+        LOGGER.log(Level.INFO, "Starting persistence of {0} Chords.", chords.size() );
+        return repository.saveAll(chords);
     }
 
 

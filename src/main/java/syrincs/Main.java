@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class Main {
     private static UseCaseInteractor interactor;
-    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords | calculate <minLowerNote> <maxUpperNote>";
+    static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords | calculate <minLowerNote> <maxUpperNote> | analyze <note1> <note2> <note3> [more...] | delete";
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws Exception {
         // Bootstrap interactor with MIDI and (optional) DB repository
@@ -67,6 +67,27 @@ public class Main {
                 int maxUpperNote = Integer.parseInt(args[2]);
                 var ids = interactor.calculateAndPersistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
                 LOGGER.info("[DB] Persisted " + ids.size() + " chords for range [" +  minLowerNote + ", " + maxUpperNote+ "].");
+            }
+            case "analyze" -> {
+                if (args.length < 4) {
+                    System.out.println("Usage: analyze <note1> <note2> <note3> [more...]");
+                    return;
+                }
+                java.util.List<Integer> notes = new java.util.ArrayList<>();
+                for (int i = 1; i < args.length; i++) {
+                    try {
+                        notes.add(Integer.parseInt(args[i]));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid note: " + args[i] + ". Use integers 0-127.");
+                        return;
+                    }
+                }
+                var res = interactor.analyzeChordByHindemith(notes);
+                System.out.println("[ANALYZE] Notes=" + res.notes + " | Column=" + res.column + " | Root=" + res.rootNote + " | Group=" + res.group + " | Frame=" + res.frameInterval);
+            }
+            case "delete" -> {
+                interactor.truncateHindemithChords();
+                System.out.println("[DB] TRUNCATE hindemithChords RESTART IDENTITY executed.");
             }
             default -> System.out.println("Unknown. Try: " + commands);
         }

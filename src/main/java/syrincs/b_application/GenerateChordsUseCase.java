@@ -29,7 +29,7 @@ public class GenerateChordsUseCase {
         LOGGER.info("Starting Generation of Chords: " + numNotes + " notes");
         for(Integer numNote : numNotes) {
             chords.addAll(generate(numNote, minLowerNote, maxUpperNote));
-            LOGGER.log(Level.INFO, "Chords with {} notes generated.", numNote );
+            LOGGER.log(Level.INFO, "Chords with {0} notes generated.", numNote );
         }
         return chords;
     }

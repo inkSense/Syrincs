@@ -22,6 +22,21 @@ class FakeHindemithChordRepository implements HindemithChordRepositoryPort {
     }
 
     @Override
+    public List<Long> saveAll(List<HindemithChord> chords) {
+        List<Long> ids = new ArrayList<>(chords.size());
+        for (HindemithChord c : chords) {
+            ids.add(save(c));
+        }
+        return ids;
+    }
+
+    @Override
+    public void truncate() {
+        store.clear();
+        seq.set(1);
+    }
+
+    @Override
     public Optional<HindemithChord> findById(long id) {
         return Optional.ofNullable(store.get(id));
     }

@@ -144,38 +144,8 @@ public class ChordAnalysis {
         var specs = new ChordSpecificationRepository();
         Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications();
 
-        // Prioritize more specific rules:
-        // 1) multiple tritones
-        // 2) dim/dim7 (group 14)
-        // 3) layering of M3 or P4 (group 13)
-        // 4) all remaining in natural order
-        List<Integer> multiTritones = new ArrayList<>();
-        List<Integer> dimOrDim7 = new ArrayList<>();
-        List<Integer> layering = new ArrayList<>();
-        List<Integer> others = new ArrayList<>();
-
-        List<Integer> keys = new ArrayList<>(groupSpecs.keySet());
-        Collections.sort(keys);
-        for (Integer g : keys) {
-            ChordSpecification spec = groupSpecs.get(g);
-            if (spec == null) continue;
-            if (spec.getMehrereTritoni()) {
-                multiTritones.add(g);
-            } else if (spec.getDimOrDim7()) {
-                dimOrDim7.add(g);
-            } else if (spec.getLayersOfMajor3OrPerfect4()) {
-                layering.add(g);
-            } else {
-                others.add(g);
-            }
-        }
-        List<Integer> order = new ArrayList<>();
-        order.addAll(multiTritones);
-        order.addAll(dimOrDim7);
-        order.addAll(layering);
-        order.addAll(others);
-
-        for (Integer g : order) {
+        // Determine by group specification order (insertion/group-number order)
+        for (Integer g : groupSpecs.keySet()) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
             boolean match1 = ChordRules.matchesIntervalsOnly(intervals, rootNoteIntervals, pcHindemithIntervals, spec);
@@ -183,7 +153,7 @@ public class ChordAnalysis {
             boolean match3 = ChordRules.columnRequirement(pcHindemithIntervals, spec.getColumnRequirement());
 
             if (match1 && match2 && match3) {
-                return g + 1;
+                return g + 1; // keep existing 1-based group numbering
             }
         }
         throw new IllegalStateException("Chord group has no matching groups");

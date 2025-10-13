@@ -20,6 +20,12 @@ public interface HindemithChordRepositoryPort {
     long save(HindemithChord chord);
 
     /**
+     * Persists all given chords efficiently (preferably batched) and returns generated ids in insertion order.
+     * Implementations should use a single connection and transaction with JDBC batching where possible.
+     */
+    List<Long> saveAll(List<HindemithChord> chords);
+
+    /**
      * Loads a chord by its database id.
      */
     Optional<HindemithChord> findById(long id);
@@ -33,6 +39,12 @@ public interface HindemithChordRepositoryPort {
      * Deletes a chord by id. No-op if not present.
      */
     void deleteById(long id);
+
+    /**
+     * Truncates the hindemithChords table and restarts the identity/sequence.
+     * Implementations should use a fast table-level TRUNCATE operation if possible.
+     */
+    void truncate();
 
     List<HindemithChord> getAllOf(Integer group);
 

@@ -42,7 +42,7 @@ public final class ChordRules {
 
     private static boolean intervalsNotInSet(List<HindemithInterval> hindemithIntervals, Set<Integer> exclude) {
         if (exclude == null || exclude.isEmpty()) return true;
-        Set<Integer> diffs = hindemithIntervals.stream().map(i -> i.getDifferenceWithoutOctavations()).collect(Collectors.toSet());
+        Set<Integer> diffs = hindemithIntervals.stream().map(Interval::getDifferenceWithoutOctavations).collect(Collectors.toSet());
         return Collections.disjoint(diffs, exclude);
     }
 

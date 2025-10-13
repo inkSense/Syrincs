@@ -23,11 +23,13 @@ public class UseCaseInteractor {
     private final PersistHindemithChordUseCase persistUseCase;
     private final GetHindemithChordsFromDbUseCase getHindemithChordsFromDbUseCase;
     private final SendToMidiUseCase send;
+    private final HindemithChordRepositoryPort repository;
     private final Logger LOGGER = Logger.getLogger(UseCaseInteractor.class.getName());
     private List<HindemithChord> hindemithChords;
 
 
     public UseCaseInteractor(MidiOutputPort midiOutput, HindemithChordRepositoryPort repository) {
+        this.repository = repository;
         this.generateChordsUseCase = new GenerateChordsUseCase(
                 new NoteCombinator(), new ChordAnalysis(), 3
         );
@@ -69,9 +71,9 @@ public class UseCaseInteractor {
     }
 
     public List<HindemithChord> getSomeHindemithChords() {
-        loadHindemithChordsWithGroups(60, List.of(7));
+        loadHindemithChordsWithGroups(60, List.of(8));
         LOGGER.log(Level.INFO, "{0} chords loaded.", hindemithChords.size() );
-        Collections.shuffle(hindemithChords);
+        //Collections.shuffle(hindemithChords);
         return hindemithChords;
     }
 
@@ -95,6 +97,12 @@ public class UseCaseInteractor {
 
     public List<HindemithChord> getAllChordsFromDb() {
         return getHindemithChordsFromDbUseCase.getAll();
+    }
+
+    public void truncateHindemithChords() {
+        LOGGER.info("[DB] Truncating table hindemithChords (RESTART IDENTITY)");
+        repository.truncate();
+        LOGGER.info("[DB] TRUNCATE complete.");
     }
 
 }

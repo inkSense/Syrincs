@@ -58,68 +58,58 @@ public class ChordSpecificationRepository {
                 .build()); // B) II. b 3.
 
         chordGroupSpecifications.put(6, ChordSpecification.builder()
-                .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(1,2,10,11))
-                .requireAnyIntervalsTwo(Set.of(3,4,7))
+                .excludeIntervals(Set.of(1,6,11))
+                .requireAnyIntervals(Set.of(2,10))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // A) III. 1. i (vgl. S. 127) mit Sekunden und Septimen und wie Gruppe 1
 
         chordGroupSpecifications.put(7, ChordSpecification.builder()
-                .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(2,10))
+                .excludeIntervals(Set.of(1,6))
+                .requireAnyIntervals(Set.of(2,10,11))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // A) III. 1. ii (vgl. S. 127) mit gr. Sekunden und kl. Septimen
 
         chordGroupSpecifications.put(8, ChordSpecification.builder()
                 .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(1,11))
+                .requireAnyIntervals(Set.of(1,2,10,11))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // A) III. 1. iii (vgl. S. 127) mit kl. Sekunden und gr. Septimen
 
         chordGroupSpecifications.put(9, ChordSpecification.builder()
-                .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(3,4,5))
-                .requireAnyIntervalsTwo(Set.of(1,2,10,11))
-                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
-                .build()); // A) III. 1.i (vgl. S. 127) mit Sekunden und Septimen und wie Gruppe 2
-
-        chordGroupSpecifications.put(11, ChordSpecification.builder()
                 .excludeIntervals(Set.of(1,6,11))
                 .requireAnyIntervals(Set.of(2,10))
                 .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
-                .build()); // A) III. 1.ii (vgl. S. 127)
+                .build()); // A) III. 1. i (vgl. S. 127) mit Sekunden und Septimen und wie Gruppe 2
+
+        chordGroupSpecifications.put(10, ChordSpecification.builder()
+                .excludeIntervals(Set.of(1,6))
+                .requireAnyIntervals(Set.of(2,10,11))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // A) III. 1. ii (vgl. S. 127) mit gr. Sekunden und kl. Septimen
+
+        chordGroupSpecifications.put(11, ChordSpecification.builder()
+                .excludeIntervals(Set.of(6))
+                .requireAnyIntervals(Set.of(1,2,10,11))
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // A) III. 1. iii (vgl. S. 127) mit kl. Sekunden und gr. Septimen
 
         chordGroupSpecifications.put(12, ChordSpecification.builder()
-                .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(3,4,5))
-                .requireAnyIntervalsTwo(Set.of(1,11))
-                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
-                .build()); // A) III. 1.iii (vgl. S. 127)
-
-        chordGroupSpecifications.put(13, ChordSpecification.builder()
-                .excludeIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(1,11))
-                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
-                .build()); // A) III. 1.iv (vgl. S. 127) mit gr. 2 und kl. 7 ist für Hi. wertvoller. als kl 2 & gr. 7
-
-
-        chordGroupSpecifications.put(14, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
                 .requireAnyIntervals(Set.of(1, 11))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // B) IV. 1.
 
-        chordGroupSpecifications.put(15, ChordSpecification.builder()
+        chordGroupSpecifications.put(13, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
                 .requireAnyIntervals(Set.of(1, 11))
                 .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
                 .build()); // B) IV. 2.
 
-        chordGroupSpecifications.put(16, ChordSpecification.builder()
+        chordGroupSpecifications.put(14, ChordSpecification.builder()
                 .layeringM3orP4(true)
                 .build()); // A) V.
 
-        chordGroupSpecifications.put(17, ChordSpecification.builder()
+        chordGroupSpecifications.put(15, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
                 .dimOrDim7(true)
                 .build()); // B) VI.
