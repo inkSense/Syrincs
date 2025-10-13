@@ -1,5 +1,7 @@
 package syrincs.a_domain.hindemith;
 
+import syrincs.a_domain.Interval;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,9 +28,13 @@ public final class ChordRules {
         return intervalsNotInSet(allHindemithIntervals, spec.getExcludeAll())
                 && layersOfMajor3rdOrPerfect4th(rootHindemithIntervals, spec.getLayersOfMajor3OrPerfect4())
                 && dimOrDim7(rootHindemithIntervals, spec.getDimOrDim7())
+                // Optional first OR-block
                 && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf())
+                // Optional second OR-block (AND-combined with the first if present)
+                && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf2())
+                // Optional third OR-block (AND-combined with previous if present)
+                && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf3())
                 && includesAll(allHindemithIntervals, spec.getIncludeAll())
-                && includesAllWithAlternatives(allHindemithIntervals, spec.getIncludeAllWithAlternatives())
                 && hasMehrereTritoni(pcHindemithIntervals, spec.getMehrereTritoni());
     }
 
@@ -57,7 +63,7 @@ public final class ChordRules {
 
     private static boolean includesAtLeastOneOf(List<HindemithInterval> hindemithIntervals, Set<Integer> includeAny) {
         if (includeAny == null || includeAny.isEmpty()) return true;
-        Set<Integer> diffs = hindemithIntervals.stream().map(i -> i.getDifferenceWithoutOctavations()).collect(Collectors.toSet());
+        Set<Integer> diffs = hindemithIntervals.stream().map(Interval::getDifferenceWithoutOctavations).collect(Collectors.toSet());
         return includeAny.stream().anyMatch(diffs::contains);
     }
 
@@ -67,18 +73,6 @@ public final class ChordRules {
         return diffs.containsAll(includeAll);
     }
 
-    private static boolean includesAllWithAlternatives(List<HindemithInterval> hindemithIntervals, List<Set<Integer>> groups) {
-        if (groups == null || groups.isEmpty()) return true;
-        Set<Integer> diffs = hindemithIntervals.stream()
-                .map(i -> i.getDifferenceWithoutOctavations())
-                .collect(Collectors.toSet());
-        for (Set<Integer> group : groups) {
-            if (group == null || group.isEmpty()) continue; // ignore empty groups
-            boolean any = group.stream().anyMatch(diffs::contains);
-            if (!any) return false;
-        }
-        return true;
-    }
 
     private static boolean hasMehrereTritoni(List<HindemithInterval> hindemithIntervals, boolean mustHaveMultiple) {
         if (!mustHaveMultiple) return true;
@@ -95,10 +89,6 @@ public final class ChordRules {
     public static boolean columnRequirement(List<HindemithInterval> pcHindemithIntervals, ChordSpecification.ColumnRequirement req) {
         if (req == null || req == ChordSpecification.ColumnRequirement.ANY) return true;
         // detect tritone on pitch-class level
-
-
-        //List<HindemithInterval> pcHindemithIntervals = hindemithChord.calculateAllIntervalsOfPitchClasses(); // ToDo: löschen
-
 
         boolean hasTritone = pcHindemithIntervals.stream().anyMatch(i -> i.getDifferenceWithoutOctavations() == 6);
         return (req == ChordSpecification.ColumnRequirement.WITH_TRITONE) == hasTritone;

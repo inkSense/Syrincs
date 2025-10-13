@@ -61,7 +61,7 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
     }
 
     @Override
-    public void sendChordToDevice(Chord chord, String deviceNameSubstring) {
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring, long duration) {
         if (chord == null) return;
         try {
             MidiDevice.Info info = (deviceNameSubstring != null && !deviceNameSubstring.isEmpty())
@@ -82,7 +82,7 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
                 if (!device.isOpen()) { device.open(); openedHere = true; }
                 Receiver receiver = device.getReceiver();
                 try {
-                    sendChordViaReceiver(receiver, chord, 0);
+                    sendChordViaReceiver(receiver, chord, 0, duration);
                 } finally {
                     try { receiver.close(); } catch (Exception ignored) {}
                 }
@@ -96,7 +96,7 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
         }
     }
 
-    private void sendChordViaReceiver(Receiver receiver, Chord chord, int channel) throws InvalidMidiDataException, InterruptedException {
+    private void sendChordViaReceiver(Receiver receiver, Chord chord, int channel, long duration) throws InvalidMidiDataException, InterruptedException {
         if (receiver == null) throw new IllegalArgumentException("receiver must not be null");
         if (chord == null) throw new IllegalArgumentException("chord must not be null");
         if (channel < 0 || channel > 15) throw new IllegalArgumentException("channel must be between 0 and 15");
@@ -117,6 +117,8 @@ public class JdkMidiOutputAdapter implements MidiOutputPort {
             on.setMessage(ShortMessage.NOTE_ON, channel, pitch, velocity);
             receiver.send(on, now);
         }
+
+
 
         // Hold duration
         if (durationMs > 0) Thread.sleep(durationMs);

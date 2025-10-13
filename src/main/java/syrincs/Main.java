@@ -9,11 +9,12 @@ import syrincs.c_adapters.postgres.PostgresHindemithChordRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Main {
     private static UseCaseInteractor interactor;
     static String commands = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords | calculate <minLowerNote> <maxUpperNote>";
-
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) throws Exception {
         // Bootstrap interactor with MIDI and (optional) DB repository
         var midiAdapter = new JdkMidiOutputAdapter();
@@ -44,21 +45,16 @@ public class Main {
                         System.out.println("[MIDI] No chords available after loading.");
                         return;
                     }
-                    long intervalMs = 400L; // start-to-start interval
                     for (HindemithChord hindemithChord : hindemithChords) {
-                        long start = System.currentTimeMillis();
-                        System.out.println("[MIDI] Playing chord: " + hindemithChord);
-                        interactor.sendChordToDevice(hindemithChord, null); // auto-select device
-                        long elapsed = System.currentTimeMillis() - start;
-                        long sleep = intervalMs - elapsed;
-                        if (sleep > 0) Thread.sleep(sleep);
+                        interactor.sendChordToDevice(hindemithChord, null, 200L); // auto-select device
+
                     }
                 } else {
                     int note = args.length >= 2 ? Integer.parseInt(args[1]) : 60;
                     long ms = args.length >= 3 ? Long.parseLong(args[2]) : 100L;
                     double vel = args.length >= 4 ? Double.parseDouble(args[3]) : 0.5;
                     String device = args.length >= 5 ? args[4] : null; // delegate auto selection to adapter
-                    System.out.printf("[MIDI] Playing note %d for %d ms at vel %.2f on '%s'%n", note, ms, vel, device == null ? "(auto)" : device);
+
                     interactor.sendToneToDevice(new Tone(ms, note, vel), device);
                 }
             }
@@ -70,7 +66,7 @@ public class Main {
                 int minLowerNote = Integer.parseInt(args[1]);
                 int maxUpperNote = Integer.parseInt(args[2]);
                 var ids = interactor.calculateAndPersistAllChordsToFiveNotes(minLowerNote, maxUpperNote);
-                System.out.printf("[DB] Persisted %d chords for range [%d, %d].%n", ids.size(), minLowerNote, maxUpperNote);
+                LOGGER.info("[DB] Persisted " + ids.size() + " chords for range [" +  minLowerNote + ", " + maxUpperNote+ "].");
             }
             default -> System.out.println("Unknown. Try: " + commands);
         }

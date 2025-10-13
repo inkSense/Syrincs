@@ -42,7 +42,7 @@ class SendToMidiUseCaseTest {
         // C major triad within safe MIDI range
         HindemithChord hindemithChord = new HindemithChord(List.of(64, 67, 72), 72, 1);
 
-        assertDoesNotThrow(() -> sendToMidiUseCase.sendChordToDevice(hindemithChord, deviceName),
+        assertDoesNotThrow(() -> sendToMidiUseCase.sendChordToDevice(hindemithChord, deviceName, 100L),
                 "Sending chord to device should not throw");
     }
 

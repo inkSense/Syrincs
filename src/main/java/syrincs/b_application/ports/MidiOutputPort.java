@@ -20,5 +20,5 @@ public interface MidiOutputPort {
     void sendToneToDevice(Tone tone, String deviceNameSubstring)
             throws MidiUnavailableException, InvalidMidiDataException, InterruptedException;
 
-    void sendChordToDevice(Chord chord, String deviceNameSubstring);
+    void sendChordToDevice(Chord chord, String deviceNameSubstring, long duration);
 }

@@ -13,6 +13,8 @@ import javax.sound.midi.MidiUnavailableException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UseCaseInteractor {
 
@@ -20,8 +22,10 @@ public class UseCaseInteractor {
     private final AnalyseChordByHindemithUseCase analyseChordByHindemithUseCase;
     private final PersistHindemithChordUseCase persistUseCase;
     private final GetHindemithChordsFromDbUseCase getHindemithChordsFromDbUseCase;
-    private List<HindemithChord> hindemithChords;
     private final SendToMidiUseCase send;
+    private final Logger LOGGER = Logger.getLogger(UseCaseInteractor.class.getName());
+    private List<HindemithChord> hindemithChords;
+
 
     public UseCaseInteractor(MidiOutputPort midiOutput, HindemithChordRepositoryPort repository) {
         this.generateChordsUseCase = new GenerateChordsUseCase(
@@ -43,11 +47,13 @@ public class UseCaseInteractor {
     }
 
     public void sendToneToDevice(Tone tone, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        System.out.printf("[MIDI] Playing note %d.", (int) tone.getMidiPitch());
         send.sendToneToDevice(tone, deviceNameSubstring);
     }
 
-    public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        send.sendChordToDevice(hindemithChord, deviceNameSubstring);
+    public void sendChordToDevice(HindemithChord hindemithChord, String deviceNameSubstring, Long duration) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        send.sendChordToDevice(hindemithChord, deviceNameSubstring, duration);
+
     }
 
     public void loadHindemithChords() {
@@ -63,8 +69,8 @@ public class UseCaseInteractor {
     }
 
     public List<HindemithChord> getSomeHindemithChords() {
-        loadHindemithChordsWithGroups(60, List.of(3));
-        System.out.println(hindemithChords.size() + " chords loaded.");
+        loadHindemithChordsWithGroups(60, List.of(7));
+        LOGGER.log(Level.INFO, "{0} chords loaded.", hindemithChords.size() );
         Collections.shuffle(hindemithChords);
         return hindemithChords;
     }
@@ -82,6 +88,7 @@ public class UseCaseInteractor {
     }
 
     public List<Long> calculateAndPersistAllChordsToFiveNotes(int minLowerNote, int maxUpperNote) {
+        LOGGER.info("Starting Calculation of Chords");
         List<HindemithChord> chords = generateChordsUseCase.generateAllChordsToFiveNotes(minLowerNote, maxUpperNote);
         return persistUseCase.persist(chords);
     }

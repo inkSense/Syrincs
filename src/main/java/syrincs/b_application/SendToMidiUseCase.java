@@ -27,7 +27,12 @@ public class SendToMidiUseCase {
         midiOutput.sendToneToDevice(tone, deviceNameSubstring);
     }
 
-    public void sendChordToDevice(Chord chord, String deviceNameSubstring) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        midiOutput.sendChordToDevice(chord, deviceNameSubstring);
+    public void sendChordToDevice(Chord chord, String deviceNameSubstring, long duration) throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        midiOutput.sendChordToDevice(chord, deviceNameSubstring, duration);
+        long start = System.currentTimeMillis();
+        System.out.println("[MIDI] Playing chord: " + chord);
+        long elapsed = System.currentTimeMillis() - start;
+        long sleep = duration - elapsed;
+        if (sleep > 0) Thread.sleep(sleep);
     }
 }

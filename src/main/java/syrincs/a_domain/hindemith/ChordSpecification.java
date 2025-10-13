@@ -25,8 +25,8 @@ public final class ChordSpecification {
     private final Set<Integer> excludeIntervals;
     private final Set<Integer> requireIntervals;
     private final Set<Integer> requireAnyIntervals; // ODER-Menge
-    // UND-verknüpfte ODER-Gruppen
-    private final List<Set<Integer>> requireAllWithAlternatives;
+    private final Set<Integer> requireAnyIntervals2; // optional zweiter ODER-Block
+    private final Set<Integer> requireAnyIntervals3; // optional dritter ODER-Block
 
     // Optional metadata
     private final Integer groupNumber; // 1..14
@@ -43,8 +43,8 @@ public final class ChordSpecification {
         this.excludeIntervals = unmodifiableOrEmpty(b.excludeIntervals);
         this.requireIntervals = unmodifiableOrEmpty(b.requireIntervals);
         this.requireAnyIntervals = unmodifiableOrEmpty(b.requireAnyIntervals);
-        this.requireAllWithAlternatives = (b.requireAllWithAlternatives == null) ? List.of()
-                : b.requireAllWithAlternatives.stream().map(Set::copyOf).toList();
+        this.requireAnyIntervals2 = unmodifiableOrEmpty(b.requireAnyIntervalsTwo);
+        this.requireAnyIntervals3 = unmodifiableOrEmpty(b.requireAnyIntervalsThree);
         this.groupNumber = b.groupNumber;
         this.label = b.label;
     }
@@ -61,7 +61,8 @@ public final class ChordSpecification {
     public Set<Integer> getExcludeIntervals() { return excludeIntervals; }
     public Set<Integer> getRequireIntervals() { return requireIntervals; }
     public Set<Integer> getRequireAnyIntervals() { return requireAnyIntervals; }
-    public List<Set<Integer>> getRequireAllWithAlternatives() { return requireAllWithAlternatives; }
+    public Set<Integer> getRequireAnyIntervals2() { return requireAnyIntervals2; }
+    public Set<Integer> getRequireAnyIntervals3() { return requireAnyIntervals3; }
     public Optional<Integer> getGroupNumber() { return Optional.ofNullable(groupNumber); }
     public Optional<String> getLabel() { return Optional.ofNullable(label); }
 
@@ -69,6 +70,8 @@ public final class ChordSpecification {
     public Set<Integer> getExcludeAll() { return getExcludeIntervals(); }
     public Set<Integer> getIncludeAll() { return getRequireIntervals(); }
     public Set<Integer> getIncludeAtLeastOneOf() { return getRequireAnyIntervals(); }
+    public Set<Integer> getIncludeAtLeastOneOf2() { return getRequireAnyIntervals2(); }
+    public Set<Integer> getIncludeAtLeastOneOf3() { return getRequireAnyIntervals3(); }
     public String getRootNoteEqual() {
         return switch (rootRelation) {
             case EQUALS_BASS -> "==";
@@ -79,7 +82,6 @@ public final class ChordSpecification {
     public boolean getMehrereTritoni() { return isMehrereTritoni(); }
     public boolean getLayersOfMajor3OrPerfect4() { return isLayersOfMajor3OrPerfect4(); }
     public boolean getDimOrDim7() { return isDimOrDim7(); }
-    public List<Set<Integer>> getIncludeAllWithAlternatives() { return getRequireAllWithAlternatives(); }
 
     // --- Builder: single construction API ---
     public static Builder builder() { return new Builder(); }
@@ -93,7 +95,8 @@ public final class ChordSpecification {
         private Set<Integer> excludeIntervals;
         private Set<Integer> requireIntervals;
         private Set<Integer> requireAnyIntervals;
-        private List<Set<Integer>> requireAllWithAlternatives;
+        private Set<Integer> requireAnyIntervalsTwo;
+        private Set<Integer> requireAnyIntervalsThree;
         private Integer groupNumber;
         private String label;
 
@@ -110,8 +113,12 @@ public final class ChordSpecification {
         public Builder requireIntervals(Integer... s) { this.requireIntervals = toSet(s); return this; }
         public Builder requireAnyIntervals(Set<Integer> s) { this.requireAnyIntervals = s; return this; }
         public Builder requireAnyIntervals(Integer... s) { this.requireAnyIntervals = toSet(s); return this; }
-        public Builder requireAllWithAlternatives(List<Set<Integer>> groups) { this.requireAllWithAlternatives = groups; return this; }
-        public Builder requireAllWithAlternatives(Set<Integer>... groups) { this.requireAllWithAlternatives = List.of(groups); return this; }
+        // Zweiter optionaler ODER-Block: überschreibt nicht den ersten
+        public Builder requireAnyIntervalsTwo(Set<Integer> s) { this.requireAnyIntervalsTwo = s; return this; }
+        public Builder requireAnyIntervalsTwo(Integer... s) { this.requireAnyIntervalsTwo = toSet(s); return this; }
+        // Dritter optionaler ODER-Block: überschreibt nicht die ersten beiden
+        public Builder requireAnyIntervals3(Set<Integer> s) { this.requireAnyIntervalsThree = s; return this; }
+        public Builder requireAnyIntervals3(Integer... s) { this.requireAnyIntervalsThree = toSet(s); return this; }
 
         public Builder groupNumber(int n) { this.groupNumber = n; return this; }
         public Builder label(String s) { this.label = s; return this; }
