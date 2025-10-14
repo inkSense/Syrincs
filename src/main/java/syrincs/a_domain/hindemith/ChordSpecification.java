@@ -17,7 +17,7 @@ public final class ChordSpecification {
     private final ColumnRequirement columnRequirement;
     private final RootRelation rootRelation;
     private final boolean tritoneSubordinated;
-    private final boolean mehrereTritoni;
+    private final Boolean mehrereTritoni;
     private final boolean layersOfMajor3OrPerfect4;
     private final boolean dimOrDim7;
 
@@ -55,7 +55,7 @@ public final class ChordSpecification {
     public ColumnRequirement getColumnRequirement() { return columnRequirement; }
     public RootRelation getRootRelationEnum() { return rootRelation; }
     public boolean isTritoneSubordinated() { return tritoneSubordinated; }
-    public boolean isMehrereTritoni() { return mehrereTritoni; }
+    public Boolean isMehrereTritoni() { return mehrereTritoni; }
     public boolean isLayersOfMajor3OrPerfect4() { return layersOfMajor3OrPerfect4; }
     public boolean isDimOrDim7() { return dimOrDim7; }
     public Set<Integer> getExcludeIntervals() { return excludeIntervals; }
@@ -79,7 +79,7 @@ public final class ChordSpecification {
             default -> null;
         };
     }
-    public boolean getMehrereTritoni() { return isMehrereTritoni(); }
+    public Boolean getMehrereTritoni() { return mehrereTritoni; }
     public boolean getLayersOfMajor3OrPerfect4() { return isLayersOfMajor3OrPerfect4(); }
     public boolean getDimOrDim7() { return isDimOrDim7(); }
 
@@ -89,7 +89,7 @@ public final class ChordSpecification {
         private ColumnRequirement columnRequirement = ColumnRequirement.ANY;
         private RootRelation rootRelation = RootRelation.ANY;
         private boolean tritoneSubordinated = false;
-        private boolean mehrereTritoni = false;
+        private Boolean mehrereTritoni = null;
         private boolean layersOfMajor3OrPerfect4 = false;
         private boolean dimOrDim7 = false;
         private Set<Integer> excludeIntervals;

@@ -143,9 +143,9 @@ public class ChordAnalysis {
     ) {
         var specs = new ChordSpecificationRepository();
         Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications();
-
+        List<Integer> groupSpecsList = groupSpecs.keySet().stream().sorted().toList();
         // Determine by group specification order (insertion/group-number order)
-        for (Integer g : groupSpecs.keySet()) {
+        for (Integer g : groupSpecsList) {
             ChordSpecification spec = groupSpecs.get(g);
             if (spec == null) continue;
             boolean match1 = ChordRules.matchesIntervalsOnly(intervals, rootNoteIntervals, pcHindemithIntervals, spec);

@@ -74,10 +74,15 @@ public final class ChordRules {
     }
 
 
-    private static boolean hasMehrereTritoni(List<HindemithInterval> hindemithIntervals, boolean mustHaveMultiple) {
+    private static boolean hasMehrereTritoni(List<HindemithInterval> hindemithIntervals, Boolean mustHaveMultiple) {
+        // Tri-state logic:
+        // - null  => no restriction
+        // - true  => must have >= 2 tritones
+        // - false => must have < 2 tritones
+        if (mustHaveMultiple == null) return true;
         long tritones = hindemithIntervals.stream().filter(i -> i.getDifferenceWithoutOctavations() == 6).count();
-        boolean tritonesMoreThanOne  = tritones >= 2;
-        return tritonesMoreThanOne == mustHaveMultiple;
+        boolean many = tritones >= 2;
+        return mustHaveMultiple ? many : !many;
     }
 
     public static boolean rootRelation(int bass, Integer root, String condition) {

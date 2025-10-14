@@ -48,6 +48,7 @@ public class ChordSpecificationRepository {
                 .requireAnyIntervals(Set.of(7,5,4,8,3,9))
                 .requireAnyIntervalsTwo(Set.of(2,10))
                 .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)//check
+                .requireMultipleTritones(false)
                 .build()); // B) II. b 2. (6 AND (2 OR 10))
 
         chordGroupSpecifications.put(5, ChordSpecification.builder()
