@@ -39,6 +39,7 @@ public class ChordSpecificationRepository {
                 .requireAnyIntervals(Set.of(7,5,4,8,3,9)) //check
                 .requireAnyIntervalsTwo(Set.of(2,10))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .requireMultipleTritones(false)
                 .build()); // B) II. b 1.
 
         chordGroupSpecifications.put(4, ChordSpecification.builder()

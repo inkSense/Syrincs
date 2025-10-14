@@ -21,8 +21,8 @@ public class Main {
         var midiAdapter = new JdkMidiOutputAdapter();
 
         String url = System.getenv().getOrDefault("HINDEMITH_DB_URL", "jdbc:postgresql://localhost:5432/hindemith");
-        String user = System.getenv().getOrDefault("HINDEMITH_DB_USER", "philipp");
-        String pass = System.getenv().getOrDefault("HINDEMITH_DB_PASSWORD", "philipp");
+        String user = System.getenv().getOrDefault("HINDEMITH_DB_USER", "syrincs");
+        String pass = System.getenv().getOrDefault("HINDEMITH_DB_PASSWORD", "syrincs");
 
         var repo = new PostgresHindemithChordRepository(url, user, pass);
         interactor = new UseCaseInteractor(midiAdapter, repo);
