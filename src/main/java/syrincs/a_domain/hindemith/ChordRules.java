@@ -47,12 +47,18 @@ public final class ChordRules {
     }
 
     // Note: preserves operator precedence from original code: (required == cond1) || cond2
-    private static boolean layersOfMajor3rdOrPerfect4th(List<HindemithInterval> hindemithIntervals, boolean required) {
+    private static boolean layersOfMajor3rdOrPerfect4th(List<HindemithInterval> hindemithIntervals, Boolean required) {
+        // Tri-state logic similar to hasMehrereTritoni:
+        // - null  => no restriction
+        // - true  => require layering by M3 or P4 (cond1 || cond2)
+        // - false => forbid layering by M3 or P4 (!cond1 && !cond2)
         Set<Integer> mod4 = hindemithIntervals.stream().map(n -> n.getDifferenceWithoutOctavations() % 4).collect(Collectors.toSet());
         Set<Integer> mod5 = hindemithIntervals.stream().map(n -> n.getRealDifference() % 5).collect(Collectors.toSet());
         boolean cond1 = (mod4.size() == 1 && mod4.contains(0));
         boolean cond2 = (mod5.size() == 1 && mod5.contains(0));
-        return (required == cond1) || cond2;
+        boolean cond = cond1 || cond2;
+        if (required == null) return true;
+        return required ? cond : !cond;
     }
 
     private static boolean dimOrDim7(List<HindemithInterval> hindemithIntervals, boolean required) {
