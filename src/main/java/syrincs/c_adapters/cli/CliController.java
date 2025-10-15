@@ -87,7 +87,7 @@ public class CliController {
                 System.out.println("[ANALYZE] Notes=" + res.notes + " | Column=" + res.column + " | Root=" + res.rootNote + " | Group=" + res.group + " | Frame=" + res.frameInterval);
             }
             case "delete" -> {
-                interactor.truncateHindemithChords();
+                interactor.deleteHindemithChords();
                 System.out.println("[DB] TRUNCATE hindemithChords RESTART IDENTITY executed.");
             }
             default -> System.out.println("Unknown. Try: " + COMMANDS);

@@ -9,7 +9,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 class AnalyseChordByHindemithUseCaseTest {
 
     @Test
@@ -17,7 +16,7 @@ class AnalyseChordByHindemithUseCaseTest {
     void analyze_layers_group15() {
         var res = analyseChordByHindemithUseCase.analyze(List.of(0, 5, 10));
         assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
-        assertEquals(15, res.group);
+        assertEquals(17, res.group);
     }
 
     AnalyseChordByHindemithUseCase analyseChordByHindemithUseCase = new AnalyseChordByHindemithUseCase();
@@ -38,7 +37,7 @@ class AnalyseChordByHindemithUseCaseTest {
         var res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 69));
         assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
         assertEquals(66, res.rootNote);
-        assertEquals(16, res.group);
+        assertEquals(18, res.group);
         assertEquals(List.of(60, 66, 69), res.notes);
     }
 
@@ -62,7 +61,7 @@ class AnalyseChordByHindemithUseCaseTest {
         var res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 69));
         assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
         assertEquals(66, res.rootNote);
-        assertEquals(16, res.group);
+        assertEquals(18, res.group);
         assertEquals(9, res.frameInterval);
         assertEquals(List.of(60, 66, 69), res.notes);
     }
@@ -395,66 +394,122 @@ class AnalyseChordByHindemithUseCaseTest {
         assertEquals(12, res.group);
     }
 
+    @Test
+    @DisplayName("validate Group // B) IV. 1")
+    void validateGroup_B_IV_1() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 67, 70, 73));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(14, res.group);
 
-    /**
-     * Füge einfach weitere Tests ein, z. B.:
-     * new Example(List.of(59, 62, 65), ChordAnalysis.Group.A_TRITONE_FREE, 59, null)
-     * - expectedRoot und expectedGroup dürfen null sein, wenn du nur die Gruppe testen willst.
-     */
-    private static List<Example> userExamples() {
-        return List.of(
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 70, 73));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(13, res.group);
 
-                //11
-                new Example(List.of(60, 64, 67, 70, 73), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
-                new Example(List.of(60, 64, 70, 73), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
-                new Example(List.of(60, 66, 67, 73), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
-                new Example(List.of(60, 67, 68, 74), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
-                new Example(List.of(60, 64, 66, 67, 74), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
-                new Example(List.of(60, 66, 67, 73, 74, 80), ChordAnalysis.Column.B_WITH_TRITONE, 60, 13),
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 67, 73));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(14, res.group);
 
-                //12
-                new Example(List.of(60, 65, 66, 69, 75), ChordAnalysis.Column.B_WITH_TRITONE, 65, 14),
-                new Example(List.of(60, 64, 65, 70, 73), ChordAnalysis.Column.B_WITH_TRITONE, 65, 14),
-                new Example(List.of(60, 62, 66, 69, 73, 76), ChordAnalysis.Column.B_WITH_TRITONE, 62, 14),
-                new Example(List.of(60, 61, 66, 69, 77), ChordAnalysis.Column.B_WITH_TRITONE, 66, 14),
-                new Example(List.of(60, 64, 71, 77), ChordAnalysis.Column.B_WITH_TRITONE, 64, 14),
-                new Example(List.of(60, 64, 66, 71), ChordAnalysis.Column.B_WITH_TRITONE, 64, 14),
-                new Example(List.of(60, 64, 70, 75), ChordAnalysis.Column.B_WITH_TRITONE, 75, 14),
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 67, 68, 74));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(13, res.group);
 
-                //13
-                new Example(List.of(60, 64, 68), ChordAnalysis.Column.A_TRITONE_FREE, 60, 15),
-                new Example(List.of(60, 65, 70), ChordAnalysis.Column.A_TRITONE_FREE, 65, 15),
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 66, 67, 74));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(13, res.group);
 
-                //14
-                new Example(List.of(60, 63, 66), ChordAnalysis.Column.B_WITH_TRITONE, 60, 16),
-                new Example(List.of(61, 64, 67), ChordAnalysis.Column.B_WITH_TRITONE, 61, 16),
-                new Example(List.of(60, 63, 69), ChordAnalysis.Column.B_WITH_TRITONE, 60, 16),
-                new Example(List.of(60, 66, 69), ChordAnalysis.Column.B_WITH_TRITONE, 66, 16),
-                new Example(List.of(60, 63, 66, 69), ChordAnalysis.Column.B_WITH_TRITONE, 60, 16)
-        );
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 67, 73, 74, 80));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(14, res.group);
     }
 
     @Test
-    @DisplayName("User-extendable examples: validate group (and optionally root/degree)")
-    void analyze_userExtendableExamples() {
+    @DisplayName("validate Group // B) IV. 2")
+    void validateGroup_B_IV_2() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 65, 66, 69, 75));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(65, res.rootNote);
+        assertEquals(16, res.group);
 
-        for (Example example : userExamples()) {
-            var res = analyseChordByHindemithUseCase.analyze(example.notes());
-            assertEquals(example.column(), res.column, "Column mismatch for " + example.notes());
-            if (example.expectedRoot() != null) {
-                assertEquals(example.expectedRoot().intValue(), res.rootNote, "Root mismatch for " + example.notes());
-            }
-            if (example.expectedGroup() != null) {
-                assertEquals(example.expectedGroup().intValue(), res.group, "Degree mismatch for " + example.notes());
-            }
-        }
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 65, 70, 73));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(65, res.rootNote);
+        assertEquals(16, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 62, 66, 69, 73, 76));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(62, res.rootNote);
+        assertEquals(15, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 61, 66, 69, 77));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(66, res.rootNote);
+        assertEquals(15, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 71, 77));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(64, res.rootNote);
+        assertEquals(15, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 66, 71));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(64, res.rootNote);
+        assertEquals(15, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 70, 75));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(75, res.rootNote);
+        assertEquals(15, res.group);
     }
 
+    @Test
+    @DisplayName("validate Group // A) V.")
+    void validateGroup_A_V() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 64, 68));
+        assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(17, res.group);
 
-    // Kleines DTO für die Beispiele
-    private record Example(List<Integer> notes,
-                           ChordAnalysis.Column column,
-                           Integer expectedRoot,
-                           Integer expectedGroup) {}
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 65, 70));
+        assertEquals(ChordAnalysis.Column.A_TRITONE_FREE, res.column);
+        assertEquals(65, res.rootNote);
+        assertEquals(17, res.group);
+    }
+
+    //"validate Group // B) VI."
+    @Test
+    @DisplayName("validate Group // B) VI.")
+    void validateGroup_B_VI() {
+        var res = analyseChordByHindemithUseCase.analyze(List.of(60, 63, 66));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(18, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(61, 64, 67));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(61, res.rootNote);
+        assertEquals(18, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 63, 69));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(18, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 66, 69));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(66, res.rootNote);
+        assertEquals(18, res.group);
+
+        res = analyseChordByHindemithUseCase.analyze(List.of(60, 63, 66, 69));
+        assertEquals(ChordAnalysis.Column.B_WITH_TRITONE, res.column);
+        assertEquals(60, res.rootNote);
+        assertEquals(18, res.group);
+    }
+
 }
 

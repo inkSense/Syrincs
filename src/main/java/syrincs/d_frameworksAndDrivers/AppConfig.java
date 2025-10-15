@@ -56,8 +56,6 @@ public final class AppConfig {
         String user = (cliUser != null && !cliUser.isBlank()) ? cliUser : envOr("HINDEMITH_DB_USER", "syrincs");
         String pass = (cliPass != null && !cliPass.isBlank()) ? cliPass : envOr("HINDEMITH_DB_PASSWORD", "syrincs");
 
-        System.out.println("[BOOT] DB url=" + url + ", user=" + user);
-
         if (user == null || user.isBlank()) {
             throw new IllegalStateException("DB user is blank after resolution. Set HINDEMITH_DB_USER or --db-user.");
         }

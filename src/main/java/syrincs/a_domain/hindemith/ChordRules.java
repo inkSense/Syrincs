@@ -25,16 +25,13 @@ public final class ChordRules {
                                                List<HindemithInterval> pcHindemithIntervals,
                                                ChordSpecification spec) {
 
-        return intervalsNotInSet(allHindemithIntervals, spec.getExcludeAll())
-                && layersOfMajor3rdOrPerfect4th(rootHindemithIntervals, spec.getLayersOfMajor3OrPerfect4())
-                && dimOrDim7(rootHindemithIntervals, spec.getDimOrDim7())
-                // Optional first OR-block
-                && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf())
-                // Optional second OR-block (AND-combined with the first if present)
-                && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf2())
-                // Optional third OR-block (AND-combined with previous if present)
-                && includesAtLeastOneOf(allHindemithIntervals, spec.getIncludeAtLeastOneOf3())
-                && includesAll(allHindemithIntervals, spec.getIncludeAll())
+        return intervalsNotInSet(allHindemithIntervals, spec.getExcludeAllIntervals())
+                && layersOfMajor3rdOrPerfect4th(rootHindemithIntervals, spec.isLayersOfMajor3OrPerfect4())
+                && dimOrDim7(rootHindemithIntervals, spec.isDimOrDim7())
+                && includesFromEachMaxOneButAtLeastOneOfAll(allHindemithIntervals, spec.getIncludeExactlyOne())
+                && includesAtLeastOneOf(allHindemithIntervals, spec.getRequireAnyIntervals())
+                && includesAtLeastOneOf(allHindemithIntervals, spec.getRequireAnyIntervalsTwo())
+                && includesAll(allHindemithIntervals, spec.getIncludeAllIntervals())
                 && hasMehrereTritoni(pcHindemithIntervals, spec.getMehrereTritoni());
     }
 
@@ -58,7 +55,7 @@ public final class ChordRules {
         boolean cond2 = (mod5.size() == 1 && mod5.contains(0));
         boolean cond = cond1 || cond2;
         if (required == null) return true;
-        return required ? cond : !cond;
+        return required == cond;
     }
 
     private static boolean dimOrDim7(List<HindemithInterval> hindemithIntervals, boolean required) {
@@ -73,12 +70,25 @@ public final class ChordRules {
         return includeAny.stream().anyMatch(diffs::contains);
     }
 
+    private static boolean includesOneTimeMax(List<HindemithInterval> hindemithIntervals, Integer includeOne) {
+        if (includeOne == null) return true;
+        List<Integer> diffs = hindemithIntervals.stream().map( i -> i.getRealDifference() % 12).toList();
+        List<Integer> included = diffs.stream().filter(includeOne::equals).toList();
+        return included.size() <= 1;
+    }
+
+    private static boolean includesFromEachMaxOneButAtLeastOneOfAll(List<HindemithInterval> hindemithIntervals, Set<Integer> includeOne) {
+        if (includeOne == null || includeOne.isEmpty()) return true;
+        boolean maxOne = includeOne.stream().allMatch(i-> ChordRules.includesOneTimeMax(hindemithIntervals, i));
+        boolean atLeastOneOccurence = hindemithIntervals.stream().anyMatch(i->includeOne.contains(i.getDifferenceWithoutOctavations()));
+        return maxOne && atLeastOneOccurence;
+    }
+
     private static boolean includesAll(List<HindemithInterval> hindemithIntervals, Set<Integer> includeAll) {
         if (includeAll == null || includeAll.isEmpty()) return true;
         List<Integer> diffs = hindemithIntervals.stream().map(i -> i.getDifferenceWithoutOctavations()).toList();
         return diffs.containsAll(includeAll);
     }
-
 
     private static boolean hasMehrereTritoni(List<HindemithInterval> hindemithIntervals, Boolean mustHaveMultiple) {
         // Tri-state logic:
@@ -91,10 +101,10 @@ public final class ChordRules {
         return mustHaveMultiple ? many : !many;
     }
 
-    public static boolean rootRelation(int bass, Integer root, String condition) {
-        if (condition == null) return true;
+    public static boolean rootRelation(int bass, Integer root, ChordSpecification.RootRelation condition) {
+        if (condition == null || condition == ChordSpecification.RootRelation.ANY) return true;
         if (root == null) return false;
-        return "==".equals(condition) ? (bass == root) : (bass != root);
+        return  condition.equals(ChordSpecification.RootRelation.EQUALS_BASS) ? bass == root : bass != root;
     }
 
     public static boolean columnRequirement(List<HindemithInterval> pcHindemithIntervals, ChordSpecification.ColumnRequirement req) {

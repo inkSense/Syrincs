@@ -10,7 +10,6 @@ import syrincs.b_application.ports.MidiOutputPort;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -39,6 +38,23 @@ public class UseCaseInteractor {
         this.send = new SendToMidiUseCase(midiOutput);
     }
 
+    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes) {
+        Objects.requireNonNull(numNotes, "numNotes");
+        Objects.requireNonNull(groups, "groups");
+        Objects.requireNonNull(rootNotes, "rootNotes");
+
+        List<HindemithChord> acc = new java.util.ArrayList<>();
+        for (Integer root : rootNotes) {
+            var part = getHindemithChordsFromDbUseCase
+                    .getAllOfRootNoteGroupsAndNumNotes(root, groups, numNotes);
+            acc.addAll(part);
+        }
+
+        LOGGER.log(Level.INFO, "{0} chords loaded.", acc.size() );
+        //Collections.shuffle(hindemithChords);
+        return acc;
+    }
+
 
     public MidiDevice.Info[] listMidiOutputs() {
         return send.listMidiOutputs();
@@ -58,25 +74,6 @@ public class UseCaseInteractor {
 
     }
 
-    public void loadHindemithChords() {
-        hindemithChords = getHindemithChordsFromDbUseCase.getAll();
-    }
-
-    public void loadHindemithChords(Integer group){
-        hindemithChords = getHindemithChordsFromDbUseCase.getAllOf(List.of(group));
-    }
-
-    public void loadHindemithChordsWithRootNote(Integer rootNote){
-        hindemithChords = getHindemithChordsFromDbUseCase.getAllOf(rootNote);
-    }
-
-    public List<HindemithChord> getSomeHindemithChords() {
-        loadHindemithChordsWithGroups(60, List.of(8));
-        LOGGER.log(Level.INFO, "{0} chords loaded.", hindemithChords.size() );
-        //Collections.shuffle(hindemithChords);
-        return hindemithChords;
-    }
-
     public void loadHindemithChordsWithMaxGroup(Integer rootNote, Integer maxGroup ){
         hindemithChords = getHindemithChordsFromDbUseCase.getAllOfRootNoteAndMaxGroup(rootNote, maxGroup);
     }
@@ -90,7 +87,6 @@ public class UseCaseInteractor {
     }
 
     public List<Long> calculateAndPersistAllChordsToFiveNotes(int minLowerNote, int maxUpperNote) {
-        LOGGER.info("Starting Calculation of Chords");
         List<HindemithChord> chords = generateChordsUseCase.generateAllChordsToFiveNotes(minLowerNote, maxUpperNote);
         return persistUseCase.persist(chords);
     }
@@ -99,25 +95,8 @@ public class UseCaseInteractor {
         return getHindemithChordsFromDbUseCase.getAll();
     }
 
-    public void truncateHindemithChords() {
-        LOGGER.info("[DB] Truncating table hindemithChords (RESTART IDENTITY)");
+    public void deleteHindemithChords() {
         repository.truncate();
-        LOGGER.info("[DB] TRUNCATE complete.");
-    }
-
-    // Orchestration for CLI: load chords for given filters
-    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes) {
-        Objects.requireNonNull(numNotes, "numNotes");
-        Objects.requireNonNull(groups, "groups");
-        Objects.requireNonNull(rootNotes, "rootNotes");
-
-        List<HindemithChord> acc = new java.util.ArrayList<>();
-        for (Integer root : rootNotes) {
-            var part = getHindemithChordsFromDbUseCase
-                    .getAllOfRootNoteGroupsAndNumNotes(root, groups, numNotes);
-            acc.addAll(part);
-        }
-        return acc;
     }
 
     // Play the chords using the MIDI output adapter

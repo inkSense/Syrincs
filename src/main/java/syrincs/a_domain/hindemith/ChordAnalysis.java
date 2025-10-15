@@ -55,7 +55,7 @@ public class ChordAnalysis {
         List<HindemithInterval> rootNoteIntervals = calculateRootIntervals(intervals, chord.getNumNotes());
         List<HindemithInterval> pcHindemithIntervals = calculateAllIntervalsOfPitchClasses(chord.getNotes());
 
-        int group = classifyChordGroup(notes.getFirst(), root, intervals, rootNoteIntervals, pcHindemithIntervals);
+        int group = classifyChordGroup(notes, root, intervals, rootNoteIntervals, pcHindemithIntervals);
 
         return new Result(column, root, group, frame, notes);
     }
@@ -135,12 +135,13 @@ public class ChordAnalysis {
     }
 
     private int classifyChordGroup(
-            int bassNote,
+            List<Integer> notes,
             int rootNote,
             List<HindemithInterval> intervals,
             List<HindemithInterval> rootNoteIntervals,
             List<HindemithInterval> pcHindemithIntervals
     ) {
+        int bassNote = notes.getFirst();
         var specs = new ChordSpecificationRepository();
         Map<Integer, ChordSpecification> groupSpecs = specs.getGroupSpecifications();
         List<Integer> groupSpecsList = groupSpecs.keySet().stream().sorted().toList();
@@ -156,7 +157,7 @@ public class ChordAnalysis {
                 return g + 1; // keep existing 1-based group numbering
             }
         }
-        throw new IllegalStateException("Chord group has no matching groups");
+        throw new IllegalStateException("Chord has no matching group: " + notes);
     }
 
     public List<HindemithChord> analyzeList(List<List<Integer>> noteSets) {

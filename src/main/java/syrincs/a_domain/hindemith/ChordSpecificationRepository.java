@@ -101,9 +101,10 @@ public class ChordSpecificationRepository {
 
         chordGroupSpecifications.put(12, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
-                .requireAnyIntervals(Set.of(1, 11))
-                .requireAnyIntervalsTwo(Set.of(4,7))
+                .includeExclusivelyOne(Set.of(1,11))
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
+                .requireMultipleTritones(false)
                 .build()); // B) IV. 1. i
 
         chordGroupSpecifications.put(13, ChordSpecification.builder()
@@ -112,18 +113,25 @@ public class ChordSpecificationRepository {
                 .rootRelation(ChordSpecification.RootRelation.EQUALS_BASS)
                 .build()); // B) IV. 1. ii
 
-
         chordGroupSpecifications.put(14, ChordSpecification.builder()
+                .requireIntervals(Set.of(6))
+                .includeExclusivelyOne(Set.of(1,11))
+                .requireAnyIntervals(Set.of(7,5,4,8,3,9))
+                .requireMultipleTritones(false)
+                .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
+                .build()); // B) IV. 2. i
+
+        chordGroupSpecifications.put(15, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
                 .requireAnyIntervals(Set.of(1, 11))
                 .rootRelation(ChordSpecification.RootRelation.NOT_EQUALS_BASS)
-                .build()); // B) IV. 2.
+                .build()); // B) IV. 2. ii
 
-        chordGroupSpecifications.put(15, ChordSpecification.builder()
+        chordGroupSpecifications.put(16, ChordSpecification.builder()
                 .layeringM3orP4(true)
                 .build()); // A) V.
 
-        chordGroupSpecifications.put(16, ChordSpecification.builder()
+        chordGroupSpecifications.put(17, ChordSpecification.builder()
                 .requireIntervals(Set.of(6))
                 .dimOrDim7(true)
                 .build()); // B) VI.
