@@ -16,6 +16,7 @@ import java.util.logging.Logger;
  * Also contains a lightweight router for the `play chords` subcommand that is covered by tests.
  */
 public class CliController {
+    // ToDo: Delete
     public static final String COMMANDS = "list | play <note 0-127> [ms=500] [vel=0.8] [device?] | play chords [numnotes N...] [group G...] [rootnote R] [range X] | calculate <minLowerNote> <maxUpperNote> | analyze <note1> <note2> <note3> [more...] | delete";
 
     // Defaults for `play chords` subcommand
