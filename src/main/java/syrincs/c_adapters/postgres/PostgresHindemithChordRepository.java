@@ -193,6 +193,31 @@ public class PostgresHindemithChordRepository implements HindemithChordRepositor
         }
     }
 
+    @Override
+    public List<HindemithChord> findByRootNoteAndGroupsAndNumNotesAndRange(int rootNote,
+                                                                            Collection<Integer> groups,
+                                                                            Collection<Integer> numNotes,
+                                                                            int range) {
+        Objects.requireNonNull(groups, "groups must not be null");
+        Objects.requireNonNull(numNotes, "numNotes must not be null");
+        if (groups.isEmpty() || numNotes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String sql = "SELECT notes, rootNote, chordGroup FROM public.hindemithChords " +
+                "WHERE rootNote = ? AND chordGroup = ANY(?) AND numNotes = ANY(?) AND (maxNote - minNote) <= ? ORDER BY id";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, rootNote);
+            Array groupsArr = con.createArrayOf("int4", groups.toArray(new Integer[0]));
+            Array numNotesArr = con.createArrayOf("int4", numNotes.toArray(new Integer[0]));
+            ps.setArray(2, groupsArr);
+            ps.setArray(3, numNotesArr);
+            ps.setInt(4, range);
+            return executeQuery(ps);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load HindemithChords by rootNote, groups, numNotes and range", e);
+        }
+    }
+
 
     @Override
     public void deleteById(long id) {

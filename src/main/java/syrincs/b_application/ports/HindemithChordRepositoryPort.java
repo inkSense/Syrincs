@@ -54,10 +54,14 @@ public interface HindemithChordRepositoryPort {
     List<HindemithChord> getAllOfRootNoteAndGroup(Integer rootNote, Integer group);
 
     List<HindemithChord> getAllOfRootNoteAndMaxGroup(Integer rootNote, Integer maxGroup);
-
-    // New method: rootNote + multiple groups + multiple numNotes
+    
     List<HindemithChord> findByRootNoteAndGroupsAndNumNotes(int rootNote,
                                                             Collection<Integer> groups,
                                                             Collection<Integer> numNotes);
+
+    List<HindemithChord> findByRootNoteAndGroupsAndNumNotesAndRange(int rootNote,
+                                                                     Collection<Integer> groups,
+                                                                     Collection<Integer> numNotes,
+                                                                     int range);
 
 }

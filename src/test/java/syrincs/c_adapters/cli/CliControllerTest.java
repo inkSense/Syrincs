@@ -33,7 +33,7 @@ public class CliControllerTest {
 
         assertEquals(List.of(3,4,5), pc.numNotes(), "default numNotes should be [3,4,5]");
         assertEquals(List.of(1,2,3,4,5,6,7,8,9), pc.groups(), "default groups should be [1..9]");
-        assertEquals(List.of(60), pc.rootNotes(), "default rootNote should be [60]");
+        assertEquals(60, pc.rootNote(), "default rootNote should be 60");
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CliControllerTest {
         var pc = assertIsPlayChords(command);
         assertEquals(List.of(3,4), pc.numNotes());
         assertEquals(List.of(4,5,6), pc.groups());
-        assertEquals(List.of(60), pc.rootNotes(), "rootNotes should default to [60]");
+        assertEquals(60, pc.rootNote(), "rootNote should default to 60");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class CliControllerTest {
         var pc = assertIsPlayChords(command);
         assertEquals(List.of(3,4,5), pc.numNotes());
         assertEquals(List.of(1,2), pc.groups());
-        assertEquals(List.of(72), pc.rootNotes());
+        assertEquals(72, pc.rootNote());
     }
 
     private CliController.PlayChordsCommand assertIsPlayChords(Object command) {

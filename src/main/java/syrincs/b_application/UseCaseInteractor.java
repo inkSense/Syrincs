@@ -38,20 +38,27 @@ public class UseCaseInteractor {
         this.send = new SendToMidiUseCase(midiOutput);
     }
 
-    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes) {
+    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, Integer rootNote) {
         Objects.requireNonNull(numNotes, "numNotes");
         Objects.requireNonNull(groups, "groups");
-        Objects.requireNonNull(rootNotes, "rootNotes");
+        Objects.requireNonNull(rootNote, "rootNote");
 
-        List<HindemithChord> acc = new java.util.ArrayList<>();
-        for (Integer root : rootNotes) {
-            var part = getHindemithChordsFromDbUseCase
-                    .getAllOfRootNoteGroupsAndNumNotes(root, groups, numNotes);
-            acc.addAll(part);
-        }
-
+        List<HindemithChord> acc = getHindemithChordsFromDbUseCase
+                .getAllOfRootNoteGroupsAndNumNotes(rootNote, groups, numNotes);
         LOGGER.log(Level.INFO, "{0} chords loaded.", acc.size() );
-        //Collections.shuffle(hindemithChords);
+        return acc;
+    }
+
+    // Overload: also filter by maximum range (maxNote - minNote)
+    public List<HindemithChord> findChordsFor(List<Integer> numNotes, List<Integer> groups, Integer rootNote, Integer range) {
+        Objects.requireNonNull(numNotes, "numNotes");
+        Objects.requireNonNull(groups, "groups");
+        Objects.requireNonNull(rootNote, "rootNote");
+        Objects.requireNonNull(range, "range");
+
+        List<HindemithChord> acc = getHindemithChordsFromDbUseCase
+                .getAllOfRootNoteGroupsAndNumNotes(rootNote, groups, numNotes, range);
+        LOGGER.log(Level.INFO, "{0} chords loaded (range<=%d).".formatted(range), acc.size());
         return acc;
     }
 
@@ -100,10 +107,24 @@ public class UseCaseInteractor {
     }
 
     // Play the chords using the MIDI output adapter
-    public void playChords(List<Integer> numNotes, List<Integer> groups, List<Integer> rootNotes,
+    public void playChords(List<Integer> numNotes, List<Integer> groups, Integer rootNote,
                            Long durationMs, String deviceNameSubstring)
             throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
-        var chords = findChordsFor(numNotes, groups, rootNotes);
+        var chords = findChordsFor(numNotes, groups, rootNote);
+        if (chords == null || chords.isEmpty()) {
+            System.out.println("[MIDI] No chords available after loading.");
+            return;
+        }
+        for (var hc : chords) {
+            sendChordToDevice(hc, deviceNameSubstring, durationMs);
+        }
+    }
+
+    // Overload: also filter by range
+    public void playChords(List<Integer> numNotes, List<Integer> groups, Integer rootNote, Integer range,
+                           Long durationMs, String deviceNameSubstring)
+            throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+        var chords = findChordsFor(numNotes, groups, rootNote, range);
         if (chords == null || chords.isEmpty()) {
             System.out.println("[MIDI] No chords available after loading.");
             return;

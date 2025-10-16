@@ -73,6 +73,16 @@ public class GetHindemithChordsFromDbUseCase {
     }
 
     /**
+     * Same as above but additionally restricts the maximum chord span (range) defined as (maxNote - minNote).
+     */
+    public List<HindemithChord> getAllOfRootNoteGroupsAndNumNotes(int rootNote, List<Integer> groups, List<Integer> numNotes, int range) {
+        if (groups == null || groups.isEmpty() || numNotes == null || numNotes.isEmpty()) {
+            return List.of();
+        }
+        return repository.findByRootNoteAndGroupsAndNumNotesAndRange(rootNote, groups, numNotes, range);
+    }
+
+    /**
      * Loads a single chord by its id.
      */
     public Optional<HindemithChord> getById(long id) {
