@@ -40,7 +40,7 @@ public class RootCmd implements Runnable {
 
     @Override
     public void run() {
-        // Show root usage and also explicitly show help for 'play' and 'play chords' subcommands
+        // Show root usage and also explicitly show help for 'play', 'play note' and 'play chords' subcommands
         CommandLine root = new CommandLine(this);
         root.usage(System.out);
         CommandLine play = root.getSubcommands().get("play");
@@ -48,6 +48,12 @@ public class RootCmd implements Runnable {
             System.out.println();
             System.out.println("Subcommand 'play' usage:");
             play.usage(System.out);
+            CommandLine note = play.getSubcommands().get("note");
+            if (note != null) {
+                System.out.println();
+                System.out.println("Subcommand 'play note' usage:");
+                note.usage(System.out);
+            }
             CommandLine chords = play.getSubcommands().get("chords");
             if (chords != null) {
                 System.out.println();
@@ -71,31 +77,38 @@ public class RootCmd implements Runnable {
         }
     }
 
-    @Command(name = "play", description = "Play a single note or use subcommand 'chords'", subcommands = { PlayChordsCmd.class })
+    @Command(name = "play", description = "Play a single note (default) or use subcommands 'note' and 'chords'", subcommands = { PlayCmd.NoteCmd.class, PlayChordsCmd.class })
     public static class PlayCmd implements Callable<Integer> {
         @ParentCommand RootCmd parent;
 
-        @Option(names = "note", description = "MIDI note (0-127)", defaultValue = "60")
-        int note;
-
-        @Option(names = "ms", description = "Duration in ms", defaultValue = "100")
-        long ms;
-
-        @Option(names = "vel", description = "Velocity 0..1", defaultValue = "0.5")
-        double vel;
-
-        @Option(names = "device", description = "MIDI device name substring")
-        String device;
-
         @Override
         public Integer call() throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+            // Default behavior for 'syrincs play' -> same as 'syrincs play note' with defaults
             var interactor = parent.interactor;
-            interactor.sendToneToDevice(new Tone(ms, note, vel), device);
+            interactor.sendToneToDevice(new Tone(100L, 60, 0.5), null);
             return 0;
+        }
+
+        @Command(name = "note", description = "Play a single note (defaults: note=60, vel=0.5, ms=100)")
+        public static class NoteCmd implements Callable<Integer> {
+            @ParentCommand PlayCmd parentPlay;
+
+            @Option(names = "note", description = "MIDI note (0-127)", defaultValue = "60")
+            int note;
+
+            @Option(names = "vel", description = "Velocity 0..1", defaultValue = "0.5")
+            double vel;
+
+            @Override
+            public Integer call() throws MidiUnavailableException, InvalidMidiDataException, InterruptedException {
+                var interactor = parentPlay.parent.interactor;
+                interactor.sendToneToDevice(new Tone(100L, note, vel), null);
+                return 0;
+            }
         }
     }
 
-    @Command(name = "chords", description = "Play chords from DB. Options: numnotes|num|notes (multi), group|groups (multi), rootnote|root (single, default=60), range (single, default=24), ms (default=200), device (optional)")
+    @Command(name = "chords", description = "Play chords from DB. Options: numnotes|num|notes (multi), group|groups (multi), rootnote|root (default=60), range (default=24). Duration is fixed to 200 ms; output device is auto-selected.")
     public static class PlayChordsCmd implements Callable<Integer> {
         @ParentCommand PlayCmd parentPlay; // Access via parentPlay.parent.interactor
 
@@ -112,18 +125,12 @@ public class RootCmd implements Runnable {
         @Option(names = "range", description = "Max chord span (maxNote - minNote), default: 24", defaultValue = "24")
         int range;
 
-        @Option(names = "ms", description = "Duration per chord in ms (default: 200)", defaultValue = "200")
-        long ms;
-
-        @Option(names = "device", description = "MIDI device name substring (optional)")
-        String device;
-
         @Override
         public Integer call() throws Exception {
             var interactor = parentPlay.parent.interactor;
             List<Integer> nn = (numNotes == null || numNotes.length == 0) ? List.of(3,4,5) : Arrays.stream(numNotes).boxed().toList();
             List<Integer> gr = (groups   == null || groups.length   == 0) ? List.of(1,2,3,4,5,6,7,8,9) : Arrays.stream(groups).boxed().toList();
-            interactor.playChords(nn, gr, rootNote, range, ms, device);
+            interactor.playChords(nn, gr, rootNote, range, 200L, null);
             return 0;
         }
     }

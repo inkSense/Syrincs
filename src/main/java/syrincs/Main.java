@@ -60,12 +60,18 @@ public class Main {
     private static void printExtendedHelp(CommandLine root) {
         // Print root usage
         root.usage(System.out);
-        // Also show usage for 'play' and 'play chords'
+        // Also show usage for 'play', 'play note' and 'play chords'
         CommandLine play = root.getSubcommands().get("play");
         if (play != null) {
             System.out.println();
             System.out.println("Subcommand 'play' usage:");
             play.usage(System.out);
+            CommandLine note = play.getSubcommands().get("note");
+            if (note != null) {
+                System.out.println();
+                System.out.println("Subcommand 'play note' usage:");
+                note.usage(System.out);
+            }
             CommandLine chords = play.getSubcommands().get("chords");
             if (chords != null) {
                 System.out.println();
